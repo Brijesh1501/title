@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Roster Ops — Title & Phone Toolkit</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <div id="sidebar-root"></div>
+      <main class="app-main">
+        <div class="page">
+          <header class="page-header">
+            <h1 class="page-title">Clean up a roster in two passes.</h1>
+            <p class="page-lede">
+              Two focused tools for prepping contact lists before they land in a CRM or outreach
+              sequence: sort every job title into a department, level and function; then rewrite
+              every US phone number into one consistent format.
+            </p>
+          </header>
+
+          <div class="tool-grid">
+            <a href="job-title-categorizer.html" class="tool-card tool-card--titles">
+              <span class="tool-card-tag">Rules engine · lives in Supabase</span>
+              <h2>Job Title Categorizer</h2>
+              <p>
+                Paste or upload a list of job titles. Each one is matched against a keyword
+                taxonomy for responsibility area, seniority level and department function — the
+                same logic as the original spreadsheet macro, now editable by an admin without
+                touching code.
+              </p>
+              <span class="tool-card-cta">Open the categorizer</span>
+            </a>
+
+            <a href="phone-formatter.html" class="tool-card tool-card--phones">
+              <span class="tool-card-tag">Runs entirely in your browser</span>
+              <h2>Phone Number Formatter</h2>
+              <p>
+                Paste text or upload a CSV with "Mobile No." / "Direct No." columns. Every
+                recognizable US number — (408) 368-1105, +12129280800, 1-860-558-5857 — is
+                rewritten as +1 408-368-1105.
+              </p>
+              <span class="tool-card-cta">Open the formatter</span>
+            </a>
+          </div>
+
+          <section class="admin-callout">
+            <div>
+              <h3>Own the taxonomy</h3>
+              <p>
+                Keywords, priority order and highlight colors for the title categorizer are
+                stored in Supabase, not in code. Sign in as an admin to add, edit or retire a
+                rule in seconds.
+              </p>
+            </div>
+            <a href="admin-login.html" class="admin-callout-cta">Go to admin panel</a>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <script type="module" src="js/pages/home.js"></script>
+  </body>
+</html>

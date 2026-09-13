@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manage Rules — Roster Ops</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <div id="sidebar-root"></div>
+      <main class="app-main">
+        <div class="page" id="page-content" style="display: none">
+          <header class="page-header">
+            <h1 class="page-title">Manage taxonomy rules</h1>
+            <p class="page-lede">
+              Each row is one matching rule. The categorizer walks rules within a type in
+              priority order (lowest first) and stops at the first keyword match. Lower priority
+              number = checked earlier.
+            </p>
+          </header>
+
+          <div id="rules-banner"></div>
+
+          <section class="rule-section">
+            <h2>Title Level rules</h2>
+            <table class="data-table rule-table">
+              <thead>
+                <tr>
+                  <th style="width: 70px">Priority</th>
+                  <th>Label</th>
+                  <th>Keywords (comma separated)</th>
+                  <th style="width: 70px">Active</th>
+                  <th style="width: 140px"></th>
+                </tr>
+              </thead>
+              <tbody id="title-level-tbody"></tbody>
+              <tfoot id="title-level-new-row"></tfoot>
+            </table>
+          </section>
+
+          <section class="rule-section">
+            <h2>Responsibility Area rules</h2>
+            <table class="data-table rule-table">
+              <thead>
+                <tr>
+                  <th style="width: 70px">Priority</th>
+                  <th>Label</th>
+                  <th>Department Function</th>
+                  <th>Keywords (comma separated)</th>
+                  <th style="width: 70px">Active</th>
+                  <th style="width: 140px"></th>
+                </tr>
+              </thead>
+              <tbody id="responsibility-area-tbody"></tbody>
+              <tfoot id="responsibility-area-new-row"></tfoot>
+            </table>
+          </section>
+        </div>
+
+        <div id="loading-state" class="page-loading">Checking session…</div>
+      </main>
+    </div>
+
+    <script type="module" src="js/pages/admin-rules.js"></script>
+  </body>
+</html>
