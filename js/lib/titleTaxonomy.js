@@ -76,14 +76,50 @@ export function highlightFor(title, respArea) {
   return null;
 }
 
-/** Categorizes a full list of raw title strings in one pass. */
+function categorizeOne(rawTitle, ruleSets) {
+  const title = String(rawTitle || "").trim();
+  if (!title) {
+    return { title, respArea: "", titleLevel: "", deptFunction: "", highlight: null };
+  }
+  const { respArea, titleLevel, deptFunction } = mapTitleToTaxonomy(title, ruleSets);
+  return { title, respArea, titleLevel, deptFunction, highlight: highlightFor(title, respArea) };
+}
+
+/** Categorizes a full list of raw title strings in one pass (small lists). */
 export function categorizeTitles(titles, ruleSets) {
-  return titles.map((rawTitle) => {
-    const title = String(rawTitle || "").trim();
-    if (!title) {
-      return { title, respArea: "", titleLevel: "", deptFunction: "", highlight: null };
+  return titles.map((rawTitle) => categorizeOne(rawTitle, ruleSets));
+}
+
+/**
+ * Categorizes an arbitrarily large list of titles (hundreds or thousands) in
+ * batches, yielding back to the browser between batches so the tab stays
+ * responsive and the progress bar can update. Every title is processed —
+ * nothing is capped or dropped, regardless of list size.
+ */
+export function categorizeTitlesChunked(titles, ruleSets, { batchSize = 200, onProgress } = {}) {
+  return new Promise((resolve) => {
+    const results = new Array(titles.length);
+    let i = 0;
+
+    function runBatch() {
+      const end = Math.min(i + batchSize, titles.length);
+      for (; i < end; i++) {
+        results[i] = categorizeOne(titles[i], ruleSets);
+      }
+      if (onProgress) {
+        onProgress({ done: i, total: titles.length, percent: Math.round((i / titles.length) * 100) });
+      }
+      if (i < titles.length) {
+        setTimeout(runBatch, 0);
+      } else {
+        resolve(results);
+      }
     }
-    const { respArea, titleLevel, deptFunction } = mapTitleToTaxonomy(title, ruleSets);
-    return { title, respArea, titleLevel, deptFunction, highlight: highlightFor(title, respArea) };
+
+    if (titles.length === 0) {
+      resolve(results);
+      return;
+    }
+    runBatch();
   });
 }

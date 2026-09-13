@@ -52,6 +52,16 @@ Office Coordinator</textarea>
               <p class="hint" id="upload-hint" style="display: none"></p>
 
               <button class="btn-primary" id="categorize-btn" disabled>Loading rules…</button>
+
+              <div class="progress-wrap" id="progress-wrap" style="display: none">
+                <div class="progress-label">
+                  <span id="progress-text">Processing…</span>
+                  <span id="progress-count"></span>
+                </div>
+                <div class="progress-track">
+                  <div class="progress-fill" id="progress-fill"></div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -64,6 +74,7 @@ Office Coordinator</textarea>
               <thead id="results-thead"></thead>
               <tbody id="results-tbody"></tbody>
             </table>
+            <p class="table-note" id="table-note" style="display: none"></p>
           </div>
         </div>
       </main>
