@@ -398,6 +398,12 @@ a {
   margin-bottom: 14px;
 }
 
+.results-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .results-header h2 {
   font-family: var(--font-display);
   font-weight: 500;

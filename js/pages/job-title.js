@@ -1,6 +1,6 @@
 import { mountSidebar } from "../components/sidebar.js";
 import { fetchTaxonomyRules, categorizeTitles, categorizeTitlesChunked } from "../lib/titleTaxonomy.js";
-import { downloadCsv, parseCsvFile } from "../lib/csv.js";
+import { downloadCsv, downloadHighlightedXlsx, parseCsvFile } from "../lib/csv.js";
 
 mountSidebar("job-title-categorizer.html");
 
@@ -28,6 +28,7 @@ const el = {
   resultsThead: document.getElementById("results-thead"),
   resultsTbody: document.getElementById("results-tbody"),
   exportBtn: document.getElementById("export-btn"),
+  exportCsvBtn: document.getElementById("export-csv-btn"),
   tableNote: document.getElementById("table-note"),
   progressWrap: document.getElementById("progress-wrap"),
   progressFill: document.getElementById("progress-fill"),
@@ -177,7 +178,7 @@ function renderResults(headers, rows, resultsForHighlight) {
 
   if (rows.length > TABLE_PREVIEW_LIMIT) {
     el.tableNote.style.display = "";
-    el.tableNote.textContent = `Showing the first ${TABLE_PREVIEW_LIMIT.toLocaleString()} of ${rows.length.toLocaleString()} rows. All ${rows.length.toLocaleString()} rows are included in the CSV download.`;
+    el.tableNote.textContent = `Showing the first ${TABLE_PREVIEW_LIMIT.toLocaleString()} of ${rows.length.toLocaleString()} rows. All ${rows.length.toLocaleString()} rows are included in both downloads.`;
   } else {
     el.tableNote.style.display = "none";
   }
@@ -185,17 +186,40 @@ function renderResults(headers, rows, resultsForHighlight) {
   el.resultsBlock.style.display = "";
 }
 
-el.exportBtn.addEventListener("click", () => {
+function getExportData() {
   if (state.uploadedRows) {
-    downloadCsv(state.uploadedRows, state.fileName ? `categorized-${state.fileName}` : "categorized-titles.csv");
-  } else {
-    const rows = state.results.map((r) => ({
-      Title: r.title,
-      "Responsibility Area": r.respArea,
-      "Title Level": r.titleLevel,
-      "Department Function": r.deptFunction
-    }));
-    downloadCsv(rows, "categorized-titles.csv");
+    return {
+      headers: Object.keys(state.uploadedRows[0]),
+      rows: state.uploadedRows,
+      highlights: state.results.map((r) => r.highlight),
+      baseName: state.fileName ? `categorized-${state.fileName.replace(/\.csv$/i, "")}` : "categorized-titles"
+    };
+  }
+  const headers = ["Title", "Responsibility Area", "Title Level", "Department Function"];
+  const rows = state.results.map((r) => ({
+    Title: r.title,
+    "Responsibility Area": r.respArea,
+    "Title Level": r.titleLevel,
+    "Department Function": r.deptFunction
+  }));
+  return { headers, rows, highlights: state.results.map((r) => r.highlight), baseName: "categorized-titles" };
+}
+
+el.exportCsvBtn.addEventListener("click", () => {
+  const { rows, baseName } = getExportData();
+  downloadCsv(rows, `${baseName}.csv`);
+});
+
+el.exportBtn.addEventListener("click", async () => {
+  const { headers, rows, highlights, baseName } = getExportData();
+  const originalLabel = el.exportBtn.textContent;
+  el.exportBtn.disabled = true;
+  el.exportBtn.textContent = "Building Excel file…";
+  try {
+    await downloadHighlightedXlsx(headers, rows, highlights, `${baseName}.xlsx`);
+  } finally {
+    el.exportBtn.disabled = false;
+    el.exportBtn.textContent = originalLabel;
   }
 });
 

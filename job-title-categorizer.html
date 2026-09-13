@@ -12,6 +12,7 @@
     />
     <link rel="stylesheet" href="css/styles.css" />
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
   </head>
   <body>
     <div class="app-shell">
@@ -68,7 +69,10 @@ Office Coordinator</textarea>
           <div class="results-block" id="results-block" style="display: none">
             <div class="results-header">
               <h2>Results</h2>
-              <button class="btn-secondary" id="export-btn">Download CSV</button>
+              <div class="results-header-actions">
+                <button class="btn-ghost btn-small" id="export-csv-btn">Download CSV</button>
+                <button class="btn-secondary" id="export-btn">Download Excel (highlighted)</button>
+              </div>
             </div>
             <table class="data-table">
               <thead id="results-thead"></thead>
