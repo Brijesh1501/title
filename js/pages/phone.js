@@ -45,7 +45,7 @@ el.fileInput.addEventListener("change", async (e) => {
   el.uploadHint.textContent =
     matchedHeaders.length > 0
       ? `Formatted ${changedCount} cell(s) across column(s): ${matchedHeaders.join(", ")}.`
-      : `No "Mobile No." or "Direct No." column found in ${state.fileName}.`;
+      : `No "Mobile No." or "Direct No." or "Additional Phone No." column found in ${state.fileName}.`;
 
   renderUploadedTable();
 });
