@@ -3,7 +3,8 @@ import { supabase } from "../supabaseClient.js";
 const LINKS = [
   { href: "index.html", label: "Overview" },
   { href: "job-title-categorizer.html", label: "Job Title Categorizer" },
-  { href: "phone-formatter.html", label: "Phone Number Formatter" }
+  { href: "phone-formatter.html", label: "Phone Number Formatter" },
+  { href: "report-sync.html", label: "Report → Contact Sync" }
 ];
 
 /**
@@ -24,6 +25,7 @@ export function mountSidebar(activeHref) {
     const adminBlock = session
       ? `
         <a class="sidebar-link${activeHref === "admin-rules.html" ? " is-active" : ""}" href="admin-rules.html">Manage Rules</a>
+        <a class="sidebar-link${activeHref === "admin-mappings.html" ? " is-active" : ""}" href="admin-mappings.html">Manage Field Mapping</a>
         <button class="sidebar-signout" id="sidebar-signout">Sign out (${session.user.email})</button>
       `
       : `<a class="sidebar-link${activeHref === "admin-login.html" ? " is-active" : ""}" href="admin-login.html">Sign in</a>`;

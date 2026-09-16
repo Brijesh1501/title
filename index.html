@@ -18,11 +18,12 @@
       <main class="app-main">
         <div class="page">
           <header class="page-header">
-            <h1 class="page-title">Clean up a roster in two passes.</h1>
+            <h1 class="page-title">Clean up a roster in three passes.</h1>
             <p class="page-lede">
-              Two focused tools for prepping contact lists before they land in a CRM or outreach
-              sequence: sort every job title into a department, level and function; then rewrite
-              every US phone number into one consistent format.
+              Three focused tools for prepping contact lists before they land in a CRM or
+              outreach sequence: sort every job title into a department, level and function;
+              rewrite every US phone number into one consistent format; and turn a raw report
+              export into a ready-to-import contact sheet.
             </p>
           </header>
 
@@ -49,15 +50,27 @@
               </p>
               <span class="tool-card-cta">Open the formatter</span>
             </a>
+
+            <a href="report-sync.html" class="tool-card tool-card--sync">
+              <span class="tool-card-tag">Field mapping · lives in Supabase</span>
+              <h2>Report → Contact Sync</h2>
+              <p>
+                Upload a report export and it's rewritten into a clean contact sheet using a
+                field mapping stored in Supabase — the same logic as the original
+                <code>syncReportToContactSheet()</code> spreadsheet macro, now editable by an
+                admin without touching code.
+              </p>
+              <span class="tool-card-cta">Open the sync tool</span>
+            </a>
           </div>
 
           <section class="admin-callout">
             <div>
-              <h3>Own the taxonomy</h3>
+              <h3>Own the taxonomy and the field mapping</h3>
               <p>
-                Keywords, priority order and highlight colors for the title categorizer are
-                stored in Supabase, not in code. Sign in as an admin to add, edit or retire a
-                rule in seconds.
+                Keywords, priority order and highlight colors for the title categorizer, and the
+                report → contact column mapping, are stored in Supabase, not in code. Sign in as
+                an admin to add, edit or retire either one in seconds.
               </p>
             </div>
             <a href="admin-login.html" class="admin-callout-cta">Go to admin panel</a>

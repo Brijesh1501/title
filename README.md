@@ -4,23 +4,32 @@ Plain HTML/CSS/JavaScript version of the toolkit — no React, no build step, no
 Runs as static files; the only external code loaded is the Supabase JS SDK (via ES module
 CDN import) and PapaParse (via a `<script>` tag), both loaded straight in the browser.
 
-Two tools, plus an admin panel:
+Three tools, plus an admin panel:
 
 1. **Job Title Categorizer** (`job-title-categorizer.html`) — matches each title against a
    keyword taxonomy stored in Supabase and returns Responsibility Area, Title Level, and
    Department Function.
 2. **Phone Number Formatter** (`phone-formatter.html`) — rewrites US phone numbers into
    `+1 XXX-XXX-XXXX`. Runs entirely client-side, no backend needed.
-3. **Admin Panel** (`admin-rules.html`, behind Supabase Auth) — add, edit, reorder,
-   deactivate or delete the keyword rules that drive the categorizer, no code changes or
-   redeploys required.
+3. **Report → Contact Sync** (`report-sync.html`) — upload a report export and it's rewritten
+   into a contact sheet using a field mapping stored in Supabase. This is a port of the
+   original `syncReportToContactSheet()` Apps Script; the hardcoded mapping object from that
+   script is now the `contact_field_mappings` table, editable from the admin panel instead of
+   in code.
+4. **Admin Panel** (behind Supabase Auth):
+   - `admin-rules.html` — add, edit, reorder, deactivate or delete the keyword rules that
+     drive the categorizer.
+   - `admin-mappings.html` — add, edit, reorder, deactivate or delete the report → contact
+     field mappings that drive the sync tool.
+   No code changes or redeploys required for either one.
 
 ## 1. Create the Supabase project
 
 1. Create a new project at [supabase.com](https://supabase.com).
 2. Open **SQL Editor → New query**, paste the contents of `supabase/schema.sql`, and run it.
-   This creates the `job_title_rules` table, row-level security policies, and seeds it with
-   the same rules the original Apps Script used.
+   This creates the `job_title_rules` table and the `contact_field_mappings` table, their
+   row-level security policies, and seeds both with the same rules/mapping the original Apps
+   Scripts used.
 3. Open **Authentication → Users → Add user** and create one admin account (email + password).
    There is no public sign-up screen in the app on purpose — admins are provisioned by you.
 4. Open **Project Settings → API** and copy the **Project URL** and **anon public** key.
@@ -46,8 +55,9 @@ npx serve .
 python3 -m http.server 8080
 ```
 
-Then visit the printed local URL. The two tools work immediately; sign in at
-`admin-login.html` with the admin account you created to manage rules at `admin-rules.html`.
+Then visit the printed local URL. All three tools work immediately; sign in at
+`admin-login.html` with the admin account you created to manage rules at `admin-rules.html`
+or the report → contact field mapping at `admin-mappings.html`.
 
 ## 4. Deploy
 
@@ -79,13 +89,41 @@ Two highlight rules stay hardcoded in the app (matching the original script exac
 they're about visual QA rather than taxonomy): any title containing the word "architecture" is
 flagged yellow, and anything that falls through to "Others" is flagged pink.
 
+## How the report → contact sync works
+
+Field mappings live in the `contact_field_mappings` table in Supabase:
+
+| column | meaning |
+|---|---|
+| `report_header` | exact column header expected in the uploaded report CSV (case-sensitive, whitespace-trimmed) |
+| `contact_header` | destination column header written to the generated contact sheet |
+| `sort_order` | lower = earlier column in the generated contact sheet; also the row order in the admin table |
+| `is_active` | untick to retire a mapping without deleting it — the column drops out of new syncs |
+
+When a report CSV is uploaded on `report-sync.html`:
+
+1. Every active mapping is fetched, ordered by `sort_order`; the distinct `contact_header`
+   values (first-seen order) become the output column order.
+2. A row is skipped entirely if every cell in it is blank — same as the original script's
+   `row.every(cell => cell === "")` check.
+3. For each remaining row, every output column starts blank and is filled in only where a
+   mapping's `report_header` matches a column that's actually present in the uploaded file.
+4. Any mapped `report_header` missing from the file is reported once in a banner (not
+   per-row), and any column in the file with no mapping at all is listed as unmapped so you
+   know what to add.
+
+The result can be downloaded as CSV or as a formatted `.xlsx` workbook, and always contains
+every synced row — the on-page preview caps at 500 rows for rendering performance, but the
+downloads never do.
+
 ## Row Level Security
 
 - **Read** (`select`) is open to everyone, including the anon key used in the browser —
-  the categorizer needs to read rules without anyone signing in.
+  the categorizer needs to read rules, and the sync tool needs to read field mappings,
+  without anyone signing in.
 - **Write** (`insert`/`update`/`delete`) requires an authenticated Supabase session — this is
-  what actually protects the admin panel, not the secrecy of the anon key (which is meant to
-  be public).
+  what actually protects both admin pages, not the secrecy of the anon key (which is meant to
+  be public). Same policy shape on both `job_title_rules` and `contact_field_mappings`.
 
 ## Project structure
 
@@ -93,8 +131,10 @@ flagged yellow, and anything that falls through to "Others" is flagged pink.
 index.html                     landing page
 job-title-categorizer.html     categorizer UI
 phone-formatter.html           formatter UI
+report-sync.html                report → contact sync UI
 admin-login.html                Supabase email/password sign-in
 admin-rules.html                CRUD table for job_title_rules
+admin-mappings.html             CRUD table for contact_field_mappings
 
 css/styles.css                  all styles
 
@@ -102,12 +142,14 @@ js/config.example.js            copy to config.js and fill in your Supabase cred
 js/supabaseClient.js            creates the Supabase client (CDN ESM import)
 js/lib/phoneUtils.js            phone regex/formatting, ported 1:1 from the Apps Script
 js/lib/titleTaxonomy.js         fetches rules from Supabase and applies them to titles
+js/lib/reportSync.js            fetches field mappings and applies them to a report CSV,
+                                 ported 1:1 from syncReportToContactSheet()
 js/lib/csv.js                   CSV parse/export helpers (wraps the PapaParse CDN script)
 js/components/sidebar.js        shared nav, reflects live auth state
 js/components/auth-guard.js     redirects to login when there's no session
 js/pages/*.js                   per-page logic (one file per HTML page)
 
-supabase/schema.sql             table, indexes, RLS policies, seed data
+supabase/schema.sql             tables, indexes, RLS policies, seed data
 ```
 
 ## Notes on this approach

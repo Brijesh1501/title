@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manage Field Mapping — Roster Ops</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <div id="sidebar-root"></div>
+      <main class="app-main">
+        <div class="page" id="page-content" style="display: none">
+          <header class="page-header">
+            <h1 class="page-title">Manage report → contact field mapping</h1>
+            <p class="page-lede">
+              Each row maps one column from a report export to one column in the generated
+              contact sheet. Order is the column order of the output. This replaces the
+              hardcoded mapping object from the original Apps Script — add, rename, reorder or
+              retire a field here, no redeploy required.
+            </p>
+          </header>
+
+          <div id="mappings-banner"></div>
+
+          <section class="rule-section">
+            <h2>Field mapping</h2>
+            <table class="data-table rule-table">
+              <thead>
+                <tr>
+                  <th style="width: 70px">Order</th>
+                  <th>Report column (source)</th>
+                  <th>Contact column (destination)</th>
+                  <th style="width: 70px">Active</th>
+                  <th style="width: 140px"></th>
+                </tr>
+              </thead>
+              <tbody id="mappings-tbody"></tbody>
+              <tfoot id="mappings-new-row"></tfoot>
+            </table>
+          </section>
+        </div>
+
+        <div id="loading-state" class="page-loading">Checking session…</div>
+      </main>
+    </div>
+
+    <script type="module" src="js/pages/admin-mappings.js"></script>
+  </body>
+</html>

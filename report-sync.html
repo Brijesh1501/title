@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Report → Contact Sync — Roster Ops</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <div id="sidebar-root"></div>
+      <main class="app-main">
+        <div class="page">
+          <header class="page-header">
+            <h1 class="page-title">Report → Contact Sync</h1>
+            <p class="page-lede">
+              Upload a report export and it's rewritten into a clean contact sheet using the
+              field mapping stored in Supabase — the same logic as the original
+              <code>syncReportToContactSheet()</code> spreadsheet macro, now with the mapping
+              itself editable by an admin instead of hardcoded in a script.
+            </p>
+          </header>
+
+          <div id="mapping-banner"></div>
+
+          <div class="tool-panel">
+            <div class="tool-panel-input">
+              <div class="field-row">
+                <label class="upload-button">
+                  Upload report CSV
+                  <input type="file" id="file-input" accept=".csv" hidden />
+                </label>
+                <button class="btn-ghost" id="clear-upload-btn" style="display: none">Clear file</button>
+                <a class="btn-ghost btn-small" href="admin-mappings.html" id="edit-mapping-link"
+                  >Edit field mapping</a
+                >
+              </div>
+
+              <p class="hint" id="upload-hint" style="display: none"></p>
+
+              <button class="btn-primary" id="sync-btn" disabled>Loading field mapping…</button>
+
+              <div class="progress-wrap" id="progress-wrap" style="display: none">
+                <div class="progress-label">
+                  <span id="progress-text">Processing…</span>
+                  <span id="progress-count"></span>
+                </div>
+                <div class="progress-track">
+                  <div class="progress-fill" id="progress-fill"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="results-block" id="results-block" style="display: none">
+            <div class="results-header">
+              <h2>Contact sheet preview</h2>
+              <div class="results-header-actions">
+                <button class="btn-ghost btn-small" id="export-csv-btn">Download CSV</button>
+                <button class="btn-secondary" id="export-btn">Download Excel</button>
+              </div>
+            </div>
+            <table class="data-table">
+              <thead id="results-thead"></thead>
+              <tbody id="results-tbody"></tbody>
+            </table>
+            <p class="table-note" id="table-note" style="display: none"></p>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script type="module" src="js/pages/report-sync.js"></script>
+  </body>
+</html>
