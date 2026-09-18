@@ -35,7 +35,7 @@ export function normalizeUSPhone(value) {
 
 // Header names the tool looks for in an uploaded CSV (case-insensitive,
 // matches the Apps Script's phoneHeaders array).
-export const PHONE_HEADER_CANDIDATES = ["mobile no.", "direct no.,additional phone no."];
+export const PHONE_HEADER_CANDIDATES = ["mobile no.", "direct no.","additional phone no."];
 
 /**
  * Runs normalizeUSPhone over every cell in the matching columns of parsed
