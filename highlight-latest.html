@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Highlight Latest Rows — Roster Ops</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <div id="sidebar-root"></div>
+      <main class="app-main">
+        <div class="page">
+          <header class="page-header">
+            <h1 class="page-title">Highlight Latest Rows</h1>
+            <p class="page-lede">
+              Upload a CSV with a Website column and it groups every row by website, finds the
+              most recent one in each group, and highlights it — the same logic as the
+              <code>highlightLatestByCreatedDate()</code> and <code>highlightLatestCampaign()</code>
+              spreadsheet macros, combined into one tool with the date source and date format
+              chosen at run time instead of hardcoded.
+            </p>
+          </header>
+
+          <div id="banner"></div>
+
+          <div class="tool-panel">
+            <div class="tool-panel-input">
+              <div class="field-row">
+                <label class="upload-button">
+                  Upload CSV
+                  <input type="file" id="file-input" accept=".csv" hidden />
+                </label>
+                <button class="btn-ghost" id="clear-upload-btn" style="display: none">Clear file</button>
+              </div>
+              <p class="hint" id="upload-hint" style="display: none"></p>
+
+              <div id="config-panel" style="display: none">
+                <div class="config-grid">
+                  <div class="field-group">
+                    <label class="field-group-label" for="website-select">Website column</label>
+                    <select class="select-input" id="website-select"></select>
+                  </div>
+
+                  <div class="field-group">
+                    <label class="field-group-label">Find the latest row by</label>
+                    <div class="radio-group">
+                      <label class="radio-option">
+                        <input type="radio" name="mode" value="created_date" checked />
+                        Created Date column
+                      </label>
+                      <label class="radio-option">
+                        <input type="radio" name="mode" value="campaign_name" />
+                        Campaign Name text
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mode-panel" id="created-date-panel">
+                  <div class="config-grid">
+                    <div class="field-group">
+                      <label class="field-group-label" for="date-select">Date column</label>
+                      <select class="select-input" id="date-select"></select>
+                    </div>
+                    <div class="field-group">
+                      <label class="field-group-label">Date format in this file</label>
+                      <div class="radio-group">
+                        <label class="radio-option">
+                          <input type="radio" name="dateFormat" value="dmy" checked />
+                          DD/MM/YYYY
+                        </label>
+                        <label class="radio-option">
+                          <input type="radio" name="dateFormat" value="mdy" />
+                          MM/DD/YYYY
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                  <p class="hint">
+                    Only used to disambiguate three-number dates (e.g. "05/06/2024"). A date
+                    already written as YYYY-MM-DD is read correctly either way.
+                  </p>
+                </div>
+
+                <div class="mode-panel" id="campaign-name-panel" style="display: none">
+                  <div class="config-grid">
+                    <div class="field-group">
+                      <label class="field-group-label" for="campaign-select">Campaign Name column</label>
+                      <select class="select-input" id="campaign-select"></select>
+                    </div>
+                  </div>
+                  <p class="hint">
+                    Reads the month name and the fiscal-year pair (e.g. "FY 25-26") out of the
+                    campaign name text, same as the original macro.
+                  </p>
+                </div>
+              </div>
+
+              <button class="btn-primary" id="run-btn" disabled>Upload a CSV to continue</button>
+            </div>
+          </div>
+
+          <div class="results-block" id="results-block" style="display: none">
+            <div class="results-header">
+              <h2>Preview</h2>
+              <div class="results-header-actions">
+                <button class="btn-ghost btn-small" id="export-csv-btn">Download CSV</button>
+                <button class="btn-secondary" id="export-btn">Download Excel</button>
+              </div>
+            </div>
+            <table class="data-table">
+              <thead id="results-thead"></thead>
+              <tbody id="results-tbody"></tbody>
+            </table>
+            <p class="table-note" id="table-note" style="display: none"></p>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script type="module" src="js/pages/highlight-latest.js"></script>
+  </body>
+</html>

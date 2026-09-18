@@ -18,12 +18,13 @@
       <main class="app-main">
         <div class="page">
           <header class="page-header">
-            <h1 class="page-title">Clean up a roster in three passes.</h1>
+            <h1 class="page-title">Clean up a roster in four passes.</h1>
             <p class="page-lede">
-              Three focused tools for prepping contact lists before they land in a CRM or
+              Four focused tools for prepping contact lists before they land in a CRM or
               outreach sequence: sort every job title into a department, level and function;
-              rewrite every US phone number into one consistent format; and turn a raw report
-              export into a ready-to-import contact sheet.
+              rewrite every US phone number into one consistent format; turn a raw report
+              export into a ready-to-import contact sheet; and flag the most recent entry per
+              website so duplicates don't get double-counted.
             </p>
           </header>
 
@@ -61,6 +62,18 @@
                 admin without touching code.
               </p>
               <span class="tool-card-cta">Open the sync tool</span>
+            </a>
+
+            <a href="highlight-latest.html" class="tool-card tool-card--highlight">
+              <span class="tool-card-tag">Runs entirely in your browser</span>
+              <h2>Highlight Latest Rows</h2>
+              <p>
+                Upload a CSV and it groups rows by Website, finds the most recent one in each
+                group — by Created Date or by parsing the Campaign Name — and highlights it,
+                the same logic as the original <code>highlightLatestByCreatedDate()</code> and
+                <code>highlightLatestCampaign()</code> macros.
+              </p>
+              <span class="tool-card-cta">Open the highlighter</span>
             </a>
           </div>
 

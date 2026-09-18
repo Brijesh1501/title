@@ -41,10 +41,11 @@ export function parseCsvFile(file, onProgress) {
 }
 
 // ARGB fill colors, matching the row-highlight colors used in the on-page table
-// (css/styles.css --highlight-architecture / --highlight-others).
+// (css/styles.css --highlight-architecture / --highlight-others / --highlight-latest).
 const XLSX_HIGHLIGHT_COLORS = {
   architecture: "FFFFF2CC",
-  others: "FFF8CECE"
+  others: "FFF8CECE",
+  latest: "FFFFF59D"
 };
 
 /**
@@ -54,11 +55,13 @@ const XLSX_HIGHLIGHT_COLORS = {
  *
  * @param headers        column headers, in order
  * @param rows           array of row objects keyed by header
- * @param highlights     array (same length/order as rows) of "architecture" | "others" | null
+ * @param highlights     array (same length/order as rows) of "architecture" | "others" | "latest" | null
+ * @param filename       download filename
+ * @param sheetName      worksheet title (defaults to "Categorized" for existing callers)
  */
-export async function downloadHighlightedXlsx(headers, rows, highlights, filename) {
+export async function downloadHighlightedXlsx(headers, rows, highlights, filename, sheetName = "Categorized") {
   const workbook = new window.ExcelJS.Workbook();
-  const sheet = workbook.addWorksheet("Categorized");
+  const sheet = workbook.addWorksheet(sheetName);
 
   sheet.columns = headers.map((h) => ({
     header: h,

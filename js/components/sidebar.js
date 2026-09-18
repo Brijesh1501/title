@@ -4,7 +4,8 @@ const LINKS = [
   { href: "index.html", label: "Overview" },
   { href: "job-title-categorizer.html", label: "Job Title Categorizer" },
   { href: "phone-formatter.html", label: "Phone Number Formatter" },
-  { href: "report-sync.html", label: "Report → Contact Sync" }
+  { href: "report-sync.html", label: "Report → Contact Sync" },
+  { href: "highlight-latest.html", label: "Highlight Latest Rows" }
 ];
 
 /**

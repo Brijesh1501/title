@@ -11,6 +11,9 @@
   --accent-phones-soft: #e6ebf4;
   --accent-sync: #8a5a2b;
   --accent-sync-soft: #f3e8db;
+  --accent-highlight: #8a6d00;
+  --accent-highlight-soft: #fbf3d1;
+  --highlight-latest: #fff59d;
   --highlight-architecture: #fff2cc;
   --highlight-others: #f8cece;
   --text-muted: #57645d;
@@ -232,6 +235,10 @@ a {
   border-top: 3px solid var(--accent-sync);
 }
 
+.tool-card--highlight {
+  border-top: 3px solid var(--accent-highlight);
+}
+
 .tool-card-tag {
   display: inline-block;
   font-size: 11px;
@@ -268,6 +275,10 @@ a {
 
 .tool-card--sync .tool-card-cta {
   color: var(--accent-sync);
+}
+
+.tool-card--highlight .tool-card-cta {
+  color: var(--accent-highlight);
 }
 
 .tool-card code {
@@ -363,6 +374,61 @@ a {
   font-size: 13px;
   color: var(--text-muted);
   margin: 0 0 16px;
+}
+
+.config-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin: 4px 0 18px;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-group-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.select-input {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  background: var(--paper-raised);
+  color: var(--ink);
+}
+
+.radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.radio-option input {
+  accent-color: var(--ink);
+}
+
+.mode-panel {
+  border-top: 1px dashed var(--line);
+  padding-top: 16px;
+  margin-top: 4px;
 }
 
 .btn-primary,
@@ -461,6 +527,10 @@ a {
 
 .row-highlight-others td {
   background: var(--highlight-others);
+}
+
+.row-highlight-latest td {
+  background: var(--highlight-latest);
 }
 
 /* ---------- progress bar ---------- */
