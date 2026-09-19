@@ -15,11 +15,15 @@
   --accent-highlight-soft: #fbf3d1;
   --accent-timezone: #2f6e5c;
   --accent-timezone-soft: #dcece7;
+  --accent-quality: #7a3b8a;
+  --accent-quality-soft: #efe1f4;
+  --accent-pipeline: #1f3a5f;
+  --accent-pipeline-soft: #dde6f0;
   --highlight-latest: #fff59d;
-  --highlight-filled: #d9ead3;
   --highlight-filled: #d9ead3;
   --highlight-architecture: #fff2cc;
   --highlight-others: #f8cece;
+  --status-neutral: #e8e8e3;
   --text-muted: #57645d;
   --danger: #a23b2e;
   --font-display: "Fraunces", "Iowan Old Style", serif;
@@ -247,6 +251,14 @@ a {
   border-top: 3px solid var(--accent-timezone);
 }
 
+.tool-card--quality {
+  border-top: 3px solid var(--accent-quality);
+}
+
+.tool-card--pipeline {
+  border-top: 3px solid var(--accent-pipeline);
+}
+
 .tool-card-tag {
   display: inline-block;
   font-size: 11px;
@@ -291,6 +303,14 @@ a {
 
 .tool-card--timezone .tool-card-cta {
   color: var(--accent-timezone);
+}
+
+.tool-card--quality .tool-card-cta {
+  color: var(--accent-quality);
+}
+
+.tool-card--pipeline .tool-card-cta {
+  color: var(--accent-pipeline);
 }
 
 .tool-card code {
@@ -443,6 +463,127 @@ a {
   margin-top: 4px;
 }
 
+/* Complete Pipeline tool */
+
+.pipeline-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.pipeline-step {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  background: var(--paper-raised);
+}
+
+.pipeline-step-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.pipeline-step-index {
+  flex: 0 0 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+}
+
+.pipeline-step-toggle {
+  display: flex;
+  gap: 10px;
+  flex: 1;
+  cursor: pointer;
+}
+
+.pipeline-step-toggle input[type="checkbox"] {
+  margin-top: 3px;
+  accent-color: var(--ink);
+}
+
+.pipeline-step-title {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.pipeline-step-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 2px 0 0;
+}
+
+.pipeline-step-config {
+  display: none;
+  margin: 14px 0 0 36px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--line);
+}
+
+.pipeline-step.is-selected .pipeline-step-config {
+  display: block;
+}
+
+.pipeline-step:not(.is-selected) {
+  opacity: 0.6;
+}
+
+.pipeline-log {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pipeline-log-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 13px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper-raised);
+}
+
+.pipeline-log-status {
+  flex: 0 0 20px;
+  text-align: center;
+  font-weight: 700;
+}
+
+.pipeline-log-status.is-running {
+  color: var(--accent-titles);
+}
+
+.pipeline-log-status.is-done {
+  color: var(--accent-timezone);
+}
+
+.pipeline-log-label {
+  font-weight: 600;
+}
+
+.pipeline-log-summary {
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.pipeline-log-warning {
+  color: var(--danger);
+  margin-top: 2px;
+}
+
 .btn-primary,
 .btn-secondary,
 .btn-ghost {
@@ -547,6 +688,19 @@ a {
 
 td.cell-filled {
   background: var(--highlight-filled);
+}
+
+td.status-good {
+  background: var(--highlight-filled);
+}
+
+td.status-bad {
+  background: var(--highlight-others);
+}
+
+td.status-neutral {
+  background: var(--status-neutral);
+  color: var(--text-muted);
 }
 
 /* ---------- progress bar ---------- */

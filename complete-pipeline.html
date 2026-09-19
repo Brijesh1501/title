@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Complete Pipeline — Roster Ops</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <div id="sidebar-root"></div>
+      <main class="app-main">
+        <div class="page">
+          <header class="page-header">
+            <h1 class="page-title">Complete Pipeline</h1>
+            <p class="page-lede">
+              Run any combination of the six tools on one uploaded CSV, back to back, in a
+              single pass. Pick which ones to run — one, several, or all — and they always
+              execute in this fixed order, since each one hands its output to the next:
+              Report → Contact Sync, Highlight Latest Rows, Job Title Categorizer, Phone
+              Number Formatter, Fill Missing Location Data, then Data Quality Checks.
+            </p>
+          </header>
+
+          <div id="banner"></div>
+
+          <div class="tool-panel">
+            <div class="tool-panel-input">
+              <div class="field-row">
+                <label class="upload-button">
+                  Upload CSV
+                  <input type="file" id="file-input" accept=".csv" hidden />
+                </label>
+                <button class="btn-ghost" id="clear-upload-btn" style="display: none">Clear file</button>
+              </div>
+              <p class="hint" id="upload-hint" style="display: none"></p>
+            </div>
+          </div>
+
+          <section class="rule-section">
+            <h2>Choose which passes to run</h2>
+            <p class="hint">
+              Selected passes always run in the order above, regardless of the order you check
+              them in. Unchecked passes are skipped entirely — the file just moves on to the
+              next selected one.
+            </p>
+            <div class="pipeline-steps" id="pipeline-steps"></div>
+          </section>
+
+          <button class="btn-primary" id="run-btn" disabled>Loading tool data…</button>
+
+          <div class="progress-wrap" id="progress-wrap" style="display: none">
+            <div class="progress-label">
+              <span id="progress-text">Processing…</span>
+              <span id="progress-count"></span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" id="progress-fill"></div>
+            </div>
+          </div>
+
+          <section class="rule-section" id="log-section" style="display: none">
+            <h2>Run log</h2>
+            <ul class="pipeline-log" id="pipeline-log"></ul>
+          </section>
+
+          <div class="results-block" id="results-block" style="display: none">
+            <div class="results-header">
+              <h2>Preview</h2>
+              <div class="results-header-actions">
+                <button class="btn-ghost btn-small" id="export-csv-btn">Download CSV</button>
+                <button class="btn-secondary" id="export-btn">Download Excel</button>
+              </div>
+            </div>
+            <table class="data-table">
+              <thead id="results-thead"></thead>
+              <tbody id="results-tbody"></tbody>
+            </table>
+            <p class="table-note" id="table-note" style="display: none"></p>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script type="module" src="js/pages/complete-pipeline.js"></script>
+  </body>
+</html>

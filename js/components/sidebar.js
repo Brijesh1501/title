@@ -2,6 +2,7 @@ import { supabase } from "../supabaseClient.js";
 
 const LINKS = [
   { href: "index.html", label: "Overview" },
+  { href: "complete-pipeline.html", label: "Complete Pipeline" },
   { href: "job-title-categorizer.html", label: "Job Title Categorizer" },
   { href: "phone-formatter.html", label: "Phone Number Formatter" },
   { href: "report-sync.html", label: "Report → Contact Sync" },

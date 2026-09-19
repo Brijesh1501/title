@@ -101,8 +101,65 @@ export async function downloadHighlightedXlsx(headers, rows, highlights, filenam
 }
 
 /**
- * Same idea as downloadHighlightedXlsx, but for tools that fill in or change individual
- * cells rather than categorize whole rows (e.g. the location-fill tool only touches the
+ * Combined export for the "Complete Pipeline" tool: each row can carry a whole-row tint
+ * (from a category- or latest-style check) *and* specific cells can carry their own tint
+ * (from a fill- or status-style check) on top of it — mirrors how the on-page preview
+ * layers `.row-highlight-*` under `.status-*` / `.cell-filled`.
+ *
+ * @param headers     column headers, in order
+ * @param rows        array of row objects keyed by header
+ * @param rowFlags    array (same length as rows) of { latest?: boolean, category?: string|null }
+ * @param cellFlags   array (same length as rows) of Map<header, colorKey>
+ */
+export async function downloadPipelineXlsx(headers, rows, rowFlags, cellFlags, filename, sheetName = "Pipeline result") {
+  const workbook = new window.ExcelJS.Workbook();
+  const sheet = workbook.addWorksheet(sheetName);
+
+  sheet.columns = headers.map((h) => ({
+    header: h,
+    key: h,
+    width: Math.min(40, Math.max(14, h.length + 4))
+  }));
+  sheet.getRow(1).font = { bold: true };
+  sheet.autoFilter = { from: { row: 1, column: 1 }, to: { row: 1, column: headers.length } };
+
+  rows.forEach((row, i) => {
+    const excelRow = sheet.addRow(headers.map((h) => row[h] ?? ""));
+
+    const rowKey = rowFlags[i]?.latest ? "latest" : rowFlags[i]?.category || null;
+    const rowColor = rowKey ? XLSX_HIGHLIGHT_COLORS[rowKey] : null;
+    if (rowColor) {
+      headers.forEach((_, colIdx) => {
+        excelRow.getCell(colIdx + 1).fill = { type: "pattern", pattern: "solid", fgColor: { argb: rowColor } };
+      });
+    }
+
+    const cellMap = cellFlags[i];
+    if (cellMap && cellMap.size) {
+      headers.forEach((h, colIdx) => {
+        if (!cellMap.has(h)) return;
+        const color = XLSX_HIGHLIGHT_COLORS[cellMap.get(h)];
+        if (color) {
+          excelRow.getCell(colIdx + 1).fill = { type: "pattern", pattern: "solid", fgColor: { argb: color } };
+        }
+      });
+    }
+  });
+
+  const buffer = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([buffer], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", filename);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+ /* cells rather than categorize whole rows (e.g. the location-fill tool only touches the
  * handful of cells it actually populated; the data-quality tool colors status cells
  * differently depending on their value).
  *
