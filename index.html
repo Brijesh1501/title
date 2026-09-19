@@ -18,13 +18,14 @@
       <main class="app-main">
         <div class="page">
           <header class="page-header">
-            <h1 class="page-title">Clean up a roster in four passes.</h1>
+            <h1 class="page-title">Clean up a roster in five passes.</h1>
             <p class="page-lede">
-              Four focused tools for prepping contact lists before they land in a CRM or
+              Five focused tools for prepping contact lists before they land in a CRM or
               outreach sequence: sort every job title into a department, level and function;
               rewrite every US phone number into one consistent format; turn a raw report
-              export into a ready-to-import contact sheet; and flag the most recent entry per
-              website so duplicates don't get double-counted.
+              export into a ready-to-import contact sheet; flag the most recent entry per
+              website; and fill in any missing State, Country, Region or Timezone from a
+              lookup table.
             </p>
           </header>
 
@@ -75,15 +76,28 @@
               </p>
               <span class="tool-card-cta">Open the highlighter</span>
             </a>
+
+            <a href="location-fill.html" class="tool-card tool-card--timezone">
+              <span class="tool-card-tag">Lookup table · lives in Supabase</span>
+              <h2>Fill Missing Location Data</h2>
+              <p>
+                Upload a contact sheet and any blank State, Country, Region or Timezone cell
+                is filled in by matching against a lookup table — the same logic as the
+                original <code>fillMissingLocationData()</code> spreadsheet macro, now with
+                the lookup table editable by an admin instead of a second spreadsheet tab.
+              </p>
+              <span class="tool-card-cta">Open the location filler</span>
+            </a>
           </div>
 
           <section class="admin-callout">
             <div>
               <h3>Own the taxonomy and the field mapping</h3>
               <p>
-                Keywords, priority order and highlight colors for the title categorizer, and the
-                report → contact column mapping, are stored in Supabase, not in code. Sign in as
-                an admin to add, edit or retire either one in seconds.
+                Keywords, priority order and highlight colors for the title categorizer, the
+                report → contact column mapping, and the timezone lookup table are all stored
+                in Supabase, not in code. Sign in as an admin to add, edit or retire any of
+                them in seconds.
               </p>
             </div>
             <a href="admin-login.html" class="admin-callout-cta">Go to admin panel</a>

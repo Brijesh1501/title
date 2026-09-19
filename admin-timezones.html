@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manage Timezone Lookup — Roster Ops</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <div id="sidebar-root"></div>
+      <main class="app-main">
+        <div class="page" id="page-content" style="display: none">
+          <header class="page-header">
+            <h1 class="page-title">Manage timezone lookup</h1>
+            <p class="page-lede">
+              Each row is one City/State/Country reference the location-fill tool can match
+              against. This replaces the hardcoded "TimeZone" reference sheet from the
+              original Apps Script — add, edit or remove an entry here, no redeploy required.
+              City is optional; State and Country matching work without it.
+            </p>
+          </header>
+
+          <div id="tz-banner"></div>
+
+          <section class="rule-section">
+            <div class="field-row">
+              <label class="upload-button">
+                Import CSV
+                <input type="file" id="import-input" accept=".csv" hidden />
+              </label>
+              <span class="hint" id="import-hint" style="margin: 0"
+                >Adds rows with headers City, State, Country, Region, Timezone (any casing).
+                Existing City/State/Country combinations are skipped, not overwritten.</span
+              >
+            </div>
+
+            <h2>Lookup table</h2>
+            <table class="data-table rule-table">
+              <thead>
+                <tr>
+                  <th>City</th>
+                  <th>State</th>
+                  <th>Country</th>
+                  <th>Region</th>
+                  <th>Timezone</th>
+                  <th style="width: 140px"></th>
+                </tr>
+              </thead>
+              <tbody id="tz-tbody"></tbody>
+              <tfoot id="tz-new-row"></tfoot>
+            </table>
+            <p class="hint" id="row-count-hint"></p>
+          </section>
+        </div>
+
+        <div id="loading-state" class="page-loading">Checking session…</div>
+      </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script type="module" src="js/pages/admin-timezones.js"></script>
+  </body>
+</html>

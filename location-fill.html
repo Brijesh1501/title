@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fill Missing Location Data — Roster Ops</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <div id="sidebar-root"></div>
+      <main class="app-main">
+        <div class="page">
+          <header class="page-header">
+            <h1 class="page-title">Fill Missing Location Data</h1>
+            <p class="page-lede">
+              Upload a contact sheet and any blank State, Country, Region or Timezone cell is
+              filled in by matching City, State or Country against a lookup table stored in
+              Supabase — the same logic as the original <code>fillMissingLocationData()</code>
+              spreadsheet macro, now with the lookup table itself editable by an admin.
+            </p>
+          </header>
+
+          <div id="banner"></div>
+
+          <div class="tool-panel">
+            <div class="tool-panel-input">
+              <div class="field-row">
+                <label class="upload-button">
+                  Upload contact sheet CSV
+                  <input type="file" id="file-input" accept=".csv" hidden />
+                </label>
+                <button class="btn-ghost" id="clear-upload-btn" style="display: none">Clear file</button>
+                <a class="btn-ghost btn-small" href="admin-timezones.html">Edit timezone lookup</a>
+              </div>
+
+              <p class="hint" id="upload-hint" style="display: none"></p>
+              <p class="hint" id="columns-hint" style="display: none"></p>
+
+              <label class="radio-option" id="match-city-option" style="display: none; margin-bottom: 16px">
+                <input type="checkbox" id="match-city-checkbox" checked />
+                Also match by City when available (recommended — falls back to State, then
+                Country when there's no city match)
+              </label>
+
+              <button class="btn-primary" id="run-btn" disabled>Loading timezone lookup…</button>
+
+              <div class="progress-wrap" id="progress-wrap" style="display: none">
+                <div class="progress-label">
+                  <span id="progress-text">Processing…</span>
+                  <span id="progress-count"></span>
+                </div>
+                <div class="progress-track">
+                  <div class="progress-fill" id="progress-fill"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="results-block" id="results-block" style="display: none">
+            <div class="results-header">
+              <h2>Preview</h2>
+              <div class="results-header-actions">
+                <button class="btn-ghost btn-small" id="export-csv-btn">Download CSV</button>
+                <button class="btn-secondary" id="export-btn">Download Excel</button>
+              </div>
+            </div>
+            <table class="data-table">
+              <thead id="results-thead"></thead>
+              <tbody id="results-tbody"></tbody>
+            </table>
+            <p class="table-note" id="table-note" style="display: none"></p>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script type="module" src="js/pages/location-fill.js"></script>
+  </body>
+</html>

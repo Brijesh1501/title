@@ -13,7 +13,11 @@
   --accent-sync-soft: #f3e8db;
   --accent-highlight: #8a6d00;
   --accent-highlight-soft: #fbf3d1;
+  --accent-timezone: #2f6e5c;
+  --accent-timezone-soft: #dcece7;
   --highlight-latest: #fff59d;
+  --highlight-filled: #d9ead3;
+  --highlight-filled: #d9ead3;
   --highlight-architecture: #fff2cc;
   --highlight-others: #f8cece;
   --text-muted: #57645d;
@@ -239,6 +243,10 @@ a {
   border-top: 3px solid var(--accent-highlight);
 }
 
+.tool-card--timezone {
+  border-top: 3px solid var(--accent-timezone);
+}
+
 .tool-card-tag {
   display: inline-block;
   font-size: 11px;
@@ -279,6 +287,10 @@ a {
 
 .tool-card--highlight .tool-card-cta {
   color: var(--accent-highlight);
+}
+
+.tool-card--timezone .tool-card-cta {
+  color: var(--accent-timezone);
 }
 
 .tool-card code {
@@ -531,6 +543,10 @@ a {
 
 .row-highlight-latest td {
   background: var(--highlight-latest);
+}
+
+td.cell-filled {
+  background: var(--highlight-filled);
 }
 
 /* ---------- progress bar ---------- */
