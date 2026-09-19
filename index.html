@@ -18,14 +18,14 @@
       <main class="app-main">
         <div class="page">
           <header class="page-header">
-            <h1 class="page-title">Clean up a roster in five passes.</h1>
+            <h1 class="page-title">Clean up a roster in six passes.</h1>
             <p class="page-lede">
-              Five focused tools for prepping contact lists before they land in a CRM or
+              Six focused tools for prepping contact lists before they land in a CRM or
               outreach sequence: sort every job title into a department, level and function;
               rewrite every US phone number into one consistent format; turn a raw report
               export into a ready-to-import contact sheet; flag the most recent entry per
-              website; and fill in any missing State, Country, Region or Timezone from a
-              lookup table.
+              website; fill in any missing State, Country, Region or Timezone from a lookup
+              table; and flag domain mismatches and duplicate emails.
             </p>
           </header>
 
@@ -87,6 +87,18 @@
                 the lookup table editable by an admin instead of a second spreadsheet tab.
               </p>
               <span class="tool-card-cta">Open the location filler</span>
+            </a>
+
+            <a href="data-quality.html" class="tool-card tool-card--quality">
+              <span class="tool-card-tag">Runs entirely in your browser</span>
+              <h2>Data Quality Checks</h2>
+              <p>
+                Upload a CSV and flag rows where the email domain doesn't match the company
+                website, and rows with a duplicate email address elsewhere in the file. Port
+                of <code>matchWebsiteAndEmailDomain()</code> and
+                <code>markDuplicateEmails()</code>.
+              </p>
+              <span class="tool-card-cta">Open the checker</span>
             </a>
           </div>
 

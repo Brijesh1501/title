@@ -41,12 +41,16 @@ export function parseCsvFile(file, onProgress) {
 }
 
 // ARGB fill colors, matching the row-highlight colors used in the on-page table
-// (css/styles.css --highlight-architecture / --highlight-others / --highlight-latest / --highlight-filled).
+// (css/styles.css --highlight-architecture / --highlight-others / --highlight-latest /
+// --highlight-filled / --status-neutral).
 const XLSX_HIGHLIGHT_COLORS = {
   architecture: "FFFFF2CC",
   others: "FFF8CECE",
   latest: "FFFFF59D",
-  filled: "FFD9EAD3"
+  filled: "FFD9EAD3",
+  good: "FFD9EAD3",
+  bad: "FFF8CECE",
+  neutral: "FFE8E8E3"
 };
 
 /**
@@ -99,15 +103,18 @@ export async function downloadHighlightedXlsx(headers, rows, highlights, filenam
 /**
  * Same idea as downloadHighlightedXlsx, but for tools that fill in or change individual
  * cells rather than categorize whole rows (e.g. the location-fill tool only touches the
- * handful of cells it actually populated).
+ * handful of cells it actually populated; the data-quality tool colors status cells
+ * differently depending on their value).
  *
  * @param headers          column headers, in order
  * @param rows             array of row objects keyed by header
- * @param cellHighlights   array (same length/order as rows) of Set<header> — which cells in
- *                         that row to highlight; an empty/missing Set highlights nothing
+ * @param cellHighlights   array (same length/order as rows), one entry per row:
+ *                           - a Set<header> to highlight those cells with `highlightKey`'s color
+ *                           - a Map<header, colorKey> to highlight each cell with its own color
+ *                           - null/undefined to highlight nothing in that row
  * @param filename         download filename
  * @param sheetName        worksheet title
- * @param highlightKey     which XLSX_HIGHLIGHT_COLORS entry to use (defaults to "filled")
+ * @param highlightKey     color used for plain Set entries (defaults to "filled")
  */
 export async function downloadCellHighlightedXlsx(
   headers,
@@ -128,18 +135,21 @@ export async function downloadCellHighlightedXlsx(
   sheet.getRow(1).font = { bold: true };
   sheet.autoFilter = { from: { row: 1, column: 1 }, to: { row: 1, column: headers.length } };
 
-  const color = XLSX_HIGHLIGHT_COLORS[highlightKey];
+  const defaultColor = XLSX_HIGHLIGHT_COLORS[highlightKey];
 
   rows.forEach((row, i) => {
     const excelRow = sheet.addRow(headers.map((h) => row[h] ?? ""));
     const highlighted = cellHighlights[i];
-    if (color && highlighted && highlighted.size) {
-      headers.forEach((h, colIdx) => {
-        if (highlighted.has(h)) {
-          excelRow.getCell(colIdx + 1).fill = { type: "pattern", pattern: "solid", fgColor: { argb: color } };
-        }
-      });
-    }
+    if (!highlighted || (highlighted.size ?? 0) === 0) return;
+
+    const isMap = highlighted instanceof Map;
+    headers.forEach((h, colIdx) => {
+      if (!highlighted.has(h)) return;
+      const color = isMap ? XLSX_HIGHLIGHT_COLORS[highlighted.get(h)] : defaultColor;
+      if (color) {
+        excelRow.getCell(colIdx + 1).fill = { type: "pattern", pattern: "solid", fgColor: { argb: color } };
+      }
+    });
   });
 
   const buffer = await workbook.xlsx.writeBuffer();

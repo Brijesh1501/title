@@ -6,7 +6,8 @@ const LINKS = [
   { href: "phone-formatter.html", label: "Phone Number Formatter" },
   { href: "report-sync.html", label: "Report → Contact Sync" },
   { href: "highlight-latest.html", label: "Highlight Latest Rows" },
-  { href: "location-fill.html", label: "Fill Missing Location Data" }
+  { href: "location-fill.html", label: "Fill Missing Location Data" },
+  { href: "data-quality.html", label: "Data Quality Checks" }
 ];
 
 /**

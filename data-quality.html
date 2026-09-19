@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Data Quality Checks — Roster Ops</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <div id="sidebar-root"></div>
+      <main class="app-main">
+        <div class="page">
+          <header class="page-header">
+            <h1 class="page-title">Data Quality Checks</h1>
+            <p class="page-lede">
+              Upload a CSV and run two independent checks: whether each contact's email domain
+              matches their company's website, and whether their email address is a duplicate
+              elsewhere in the file. Ports of <code>matchWebsiteAndEmailDomain()</code> and
+              <code>markDuplicateEmails()</code> — each writes its own status column, updating
+              it in place if the file already has one rather than adding a second.
+            </p>
+          </header>
+
+          <div id="banner"></div>
+
+          <div class="tool-panel">
+            <div class="tool-panel-input">
+              <div class="field-row">
+                <label class="upload-button">
+                  Upload CSV
+                  <input type="file" id="file-input" accept=".csv" hidden />
+                </label>
+                <button class="btn-ghost" id="clear-upload-btn" style="display: none">Clear file</button>
+              </div>
+              <p class="hint" id="upload-hint" style="display: none"></p>
+
+              <div id="config-panel" style="display: none">
+                <div class="config-grid">
+                  <div class="field-group">
+                    <label class="radio-option">
+                      <input type="checkbox" id="domain-check-toggle" checked />
+                      Check Website ↔ Email domain match
+                    </label>
+                  </div>
+                  <div class="field-group">
+                    <label class="radio-option">
+                      <input type="checkbox" id="duplicate-check-toggle" checked />
+                      Check for duplicate email addresses
+                    </label>
+                  </div>
+                </div>
+
+                <div class="config-grid">
+                  <div class="field-group">
+                    <label class="field-group-label" for="website-select">Website column</label>
+                    <select class="select-input" id="website-select"></select>
+                  </div>
+                  <div class="field-group">
+                    <label class="field-group-label" for="email-select">Email Address column</label>
+                    <select class="select-input" id="email-select"></select>
+                  </div>
+                </div>
+              </div>
+
+              <button class="btn-primary" id="run-btn" disabled>Upload a CSV to continue</button>
+
+              <div class="progress-wrap" id="progress-wrap" style="display: none">
+                <div class="progress-label">
+                  <span id="progress-text">Processing…</span>
+                  <span id="progress-count"></span>
+                </div>
+                <div class="progress-track">
+                  <div class="progress-fill" id="progress-fill"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="results-block" id="results-block" style="display: none">
+            <div class="results-header">
+              <h2>Preview</h2>
+              <div class="results-header-actions">
+                <button class="btn-ghost btn-small" id="export-csv-btn">Download CSV</button>
+                <button class="btn-secondary" id="export-btn">Download Excel</button>
+              </div>
+            </div>
+            <table class="data-table">
+              <thead id="results-thead"></thead>
+              <tbody id="results-tbody"></tbody>
+            </table>
+            <p class="table-note" id="table-note" style="display: none"></p>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script type="module" src="js/pages/data-quality.js"></script>
+  </body>
+</html>
