@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manage Phone Rules — Roster Ops</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <div id="sidebar-root"></div>
+      <main class="app-main">
+        <div class="page" id="page-content" style="display: none">
+          <header class="page-header">
+            <h1 class="page-title">Manage phone rules</h1>
+            <p class="page-lede">
+              Two independent lists drive the Phone Number Formatter: which CSV column
+              headers to scan, and which number shapes to recognize and how to format them.
+              Both replace what used to be hardcoded in the Apps Script — add, edit or retire
+              either one here, no redeploy required.
+            </p>
+          </header>
+
+          <div id="phones-banner"></div>
+
+          <section class="rule-section">
+            <h2>Headers to scan</h2>
+            <p class="hint">
+              Any uploaded CSV column whose header matches one of these (case-insensitive,
+              whitespace-trimmed) has its phone numbers reformatted.
+            </p>
+            <table class="data-table rule-table">
+              <thead>
+                <tr>
+                  <th>Header name</th>
+                  <th style="width: 70px">Active</th>
+                  <th style="width: 140px"></th>
+                </tr>
+              </thead>
+              <tbody id="headers-tbody"></tbody>
+              <tfoot id="headers-new-row"></tfoot>
+            </table>
+          </section>
+
+          <section class="rule-section">
+            <h2>Number patterns</h2>
+            <p class="hint">
+              Each row is a number shape the formatter recognizes and how to rewrite it — no
+              regular expressions to write, just plain fields. Country code is the optional
+              "+&lt;code&gt;" prefix to recognize (leave blank for a pattern with no country
+              code). Digit groups is the national number's grouping as comma-separated sizes
+              (e.g. "3,3,4" for an area code / exchange / line number, or "5,5" for a
+              two-group 10-digit number) — numbers may appear in the source with any mix of
+              spaces, dots or dashes between groups. Lower priority runs first when more than
+              one pattern is active; put more specific patterns (a distinctive country code,
+              a longer number) ahead of more general ones.
+            </p>
+            <table class="data-table rule-table">
+              <thead>
+                <tr>
+                  <th>Label</th>
+                  <th style="width: 110px">Country code</th>
+                  <th style="width: 130px">Digit groups</th>
+                  <th style="width: 90px">Separator</th>
+                  <th style="width: 90px">Priority</th>
+                  <th style="width: 70px">Active</th>
+                  <th style="width: 140px"></th>
+                </tr>
+              </thead>
+              <tbody id="patterns-tbody"></tbody>
+              <tfoot id="patterns-new-row"></tfoot>
+            </table>
+          </section>
+        </div>
+
+        <div id="loading-state" class="page-loading">Checking session…</div>
+      </main>
+    </div>
+
+    <script type="module" src="js/pages/admin-phones.js"></script>
+  </body>
+</html>

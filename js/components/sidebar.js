@@ -31,6 +31,7 @@ export function mountSidebar(activeHref) {
         <a class="sidebar-link${activeHref === "admin-rules.html" ? " is-active" : ""}" href="admin-rules.html">Manage Rules</a>
         <a class="sidebar-link${activeHref === "admin-mappings.html" ? " is-active" : ""}" href="admin-mappings.html">Manage Field Mapping</a>
         <a class="sidebar-link${activeHref === "admin-timezones.html" ? " is-active" : ""}" href="admin-timezones.html">Manage Timezone Lookup</a>
+        <a class="sidebar-link${activeHref === "admin-phones.html" ? " is-active" : ""}" href="admin-phones.html">Manage Phone Rules</a>
         <button class="sidebar-signout" id="sidebar-signout">Sign out (${session.user.email})</button>
       `
       : `<a class="sidebar-link${activeHref === "admin-login.html" ? " is-active" : ""}" href="admin-login.html">Sign in</a>`;

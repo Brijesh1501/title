@@ -1,10 +1,18 @@
 import { mountSidebar } from "../components/sidebar.js";
-import { normalizeUSPhone, normalizePhoneRows } from "../lib/phoneUtils.js";
+import {
+  fetchPhoneHeaderRules,
+  fetchPhonePatternRules,
+  buildPhoneMatchers,
+  normalizePhoneValueWithRules,
+  normalizePhoneRowsWithRules
+} from "../lib/phoneUtils.js";
 import { downloadCsv, parseCsvFile } from "../lib/csv.js";
 
 mountSidebar("phone-formatter.html");
 
 const state = {
+  headerNames: null,
+  matchers: null,
   uploadedRows: null,
   matchedHeaders: [],
   fileName: "",
@@ -12,6 +20,7 @@ const state = {
 };
 
 const el = {
+  banner: document.getElementById("banner"),
   fileInput: document.getElementById("file-input"),
   clearBtn: document.getElementById("clear-upload-btn"),
   textarea: document.getElementById("phones-textarea"),
@@ -29,12 +38,53 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
+function showBanner(html) {
+  el.banner.innerHTML = html || "";
+}
+
+function errorBanner(message) {
+  showBanner(`<div class="banner banner--error">${escapeHtml(message)}</div>`);
+}
+
+async function init() {
+  try {
+    const [headerRules, patternRules] = await Promise.all([fetchPhoneHeaderRules(), fetchPhonePatternRules()]);
+
+    state.headerNames = headerRules.map((r) => r.header_name);
+    state.matchers = buildPhoneMatchers(patternRules);
+
+    if (!state.matchers.length) {
+      errorBanner(
+        "No active number patterns are configured. Add at least one on the Manage Phone " +
+          "Rules page before formatting numbers."
+      );
+      return;
+    }
+    if (!state.headerNames.length) {
+      showBanner(
+        `<div class="banner">No CSV header rules are configured, so CSV upload won't match any ` +
+          `columns — pasted text below will still work. Add a header on the ` +
+          `<a href="admin-phones.html">Manage Phone Rules</a> page to enable CSV mode.</div>`
+      );
+    }
+
+    el.formatBtn.disabled = false;
+    el.formatBtn.textContent = "Format numbers";
+  } catch (err) {
+    errorBanner(
+      `Couldn't load phone rules from Supabase: ${err.message}. Confirm js/config.js is ` +
+        `filled in and that supabase/phone_schema.sql has been run.`
+    );
+  }
+}
+
 el.fileInput.addEventListener("change", async (e) => {
   const file = e.target.files?.[0];
   if (!file) return;
+  if (!state.matchers) return;
   state.fileName = file.name;
   const rows = await parseCsvFile(file);
-  const { rows: nextRows, changedCount, matchedHeaders } = normalizePhoneRows(rows);
+  const { rows: nextRows, changedCount, matchedHeaders } = normalizePhoneRowsWithRules(rows, state.headerNames, state.matchers);
   state.uploadedRows = nextRows;
   state.matchedHeaders = matchedHeaders;
 
@@ -45,7 +95,7 @@ el.fileInput.addEventListener("change", async (e) => {
   el.uploadHint.textContent =
     matchedHeaders.length > 0
       ? `Formatted ${changedCount} cell(s) across column(s): ${matchedHeaders.join(", ")}.`
-      : `No "Mobile No." or "Direct No. or Additional Phone No." column found in ${state.fileName}.`;
+      : `None of the configured header(s) (${state.headerNames.join(", ") || "none configured"}) were found in ${state.fileName}.`;
 
   renderUploadedTable();
 });
@@ -63,8 +113,9 @@ el.clearBtn.addEventListener("click", () => {
 });
 
 el.formatBtn.addEventListener("click", () => {
+  if (!state.matchers) return;
   const lines = el.textarea.value.split("\n");
-  state.textResult = lines.map((line) => normalizeUSPhone(line));
+  state.textResult = lines.map((line) => normalizePhoneValueWithRules(line, state.matchers));
   renderTextTable();
 });
 
@@ -104,3 +155,5 @@ el.exportBtn.addEventListener("click", () => {
     );
   }
 });
+
+init();

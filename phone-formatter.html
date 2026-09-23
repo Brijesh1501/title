@@ -21,10 +21,13 @@
           <header class="page-header">
             <h1 class="page-title">Phone Number Formatter</h1>
             <p class="page-lede">
-              Recognizes 10-digit and +1-prefixed US numbers in almost any punctuation and
-              rewrites them as +1 XXX-XXX-XXXX. Text around the number is left untouched.
+              Recognizes phone numbers using the header list and number patterns stored in
+              Supabase — by default, 10-digit US/Canada numbers in almost any punctuation,
+              rewritten as +1 XXX-XXX-XXXX. Text around the number is left untouched.
             </p>
           </header>
+
+          <div id="banner"></div>
 
           <div class="tool-panel">
             <div class="tool-panel-input">
@@ -34,6 +37,7 @@
                   <input type="file" id="file-input" accept=".csv" hidden />
                 </label>
                 <button class="btn-ghost" id="clear-upload-btn" style="display: none">Clear file</button>
+                <a class="btn-ghost btn-small" href="admin-phones.html">Manage phone rules</a>
               </div>
 
               <textarea
@@ -49,7 +53,7 @@
 
               <p class="hint" id="upload-hint" style="display: none"></p>
 
-              <button class="btn-primary" id="format-btn">Format numbers</button>
+              <button class="btn-primary" id="format-btn" disabled>Loading phone rules…</button>
             </div>
           </div>
 
