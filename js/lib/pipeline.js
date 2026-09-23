@@ -15,7 +15,7 @@
 import { buildContactSheet, getContactHeaders } from "./reportSync.js";
 import { computeLatestRows } from "./highlightLatest.js";
 import { categorizeTitlesChunked } from "./titleTaxonomy.js";
-import { normalizePhoneRows } from "./phoneUtils.js";
+import { normalizePhoneRows, normalizePhoneRowsWithRules } from "./phoneUtils.js";
 import { fillMissingLocationData, resolveMainColumns } from "./timezoneFill.js";
 import {
   runDomainMatchCheck,
@@ -135,12 +135,21 @@ async function runJobTitleStep(state, { ruleSets, titleColumn, onProgress }) {
   return { headers: nextHeaders, rows, rowFlags, cellFlags: state.cellFlags, summary, warnings: [] };
 }
 
-function runPhoneFormatStep(state) {
-  const { rows, changedCount, matchedHeaders } = normalizePhoneRows(state.rows);
+function runPhoneFormatStep(state, phoneFormat) {
+  // Uses the admin-configured headers/patterns from Supabase (phone_header_rules /
+  // phone_number_patterns — see js/pages/admin-phones.js) when they're available, so a
+  // header or pattern added there takes effect here too, not just on the standalone Phone
+  // Number Formatter page. Falls back to the original hardcoded US pattern only if the
+  // caller didn't supply them, so this stays a safe drop-in for any other caller of
+  // runPipeline() that hasn't fetched phone rules.
+  const { rows, changedCount, matchedHeaders } =
+    phoneFormat && phoneFormat.matchers && phoneFormat.matchers.length
+      ? normalizePhoneRowsWithRules(state.rows, phoneFormat.headerNames || [], phoneFormat.matchers)
+      : normalizePhoneRows(state.rows);
 
   const summary = matchedHeaders.length
     ? `Reformatted ${changedCount.toLocaleString()} phone number(s) in: ${matchedHeaders.join(", ")}.`
-    : `No "Mobile No." / "Direct No." column found — nothing to format.`;
+    : `No configured phone header column found — nothing to format.`;
 
   return { headers: state.headers, rows, rowFlags: state.rowFlags, cellFlags: state.cellFlags, summary, warnings: [] };
 }
@@ -205,8 +214,9 @@ function runDataQualityStep(state, { websiteHeader, emailHeader, runDomainCheck 
  * @param initialHeaders   headers of the uploaded CSV
  * @param initialRows      rows of the uploaded CSV, keyed by header
  * @param selectedStepIds  Set<string> of PIPELINE_STEPS ids to run
- * @param resources        { reportSync: {mappings}, jobTitle: {ruleSets}, locationFill: {lookupMaps} }
- *                          — pre-fetched Supabase data each relevant step needs
+ * @param resources        { reportSync: {mappings}, jobTitle: {ruleSets}, locationFill: {lookupMaps},
+ *                          phoneFormat: {headerNames, matchers} } — pre-fetched Supabase data
+ *                          each relevant step needs
  * @param stepOptions       { [stepId]: <that step's own options> }, e.g.
  *                          stepOptions["highlight-latest"] = { websiteHeader, mode, dateHeader, dateFormat, campaignHeader }
  * @param callbacks         { onStepStart(step), onStepComplete(step, result), onTitleProgress(progress) }
@@ -239,7 +249,7 @@ export async function runPipeline(initialHeaders, initialRows, selectedStepIds, 
         });
         break;
       case "phone-format":
-        result = runPhoneFormatStep(state);
+        result = runPhoneFormatStep(state, resources.phoneFormat);
         break;
       case "location-fill":
         result = runLocationFillStep(state, { ...resources.locationFill, ...stepOptions["location-fill"] });

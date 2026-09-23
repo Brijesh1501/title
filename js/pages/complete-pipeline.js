@@ -2,6 +2,7 @@ import { mountSidebar } from "../components/sidebar.js";
 import { fetchFieldMappings } from "../lib/reportSync.js";
 import { fetchTaxonomyRules } from "../lib/titleTaxonomy.js";
 import { fetchTimezoneLookup, buildLookupMaps } from "../lib/timezoneFill.js";
+import { fetchPhoneHeaderRules, fetchPhonePatternRules, buildPhoneMatchers } from "../lib/phoneUtils.js";
 import { PIPELINE_STEPS, runPipeline, resolveEffectiveHeaders } from "../lib/pipeline.js";
 import { downloadCsv, downloadPipelineXlsx, parseCsvFile } from "../lib/csv.js";
 
@@ -15,6 +16,8 @@ const state = {
   mappings: null, // contact_field_mappings, for report-sync + effective-header resolution
   ruleSets: null, // job_title_rules
   lookupMaps: null, // timezone_lookup
+  phoneHeaderNames: null, // phone_header_rules
+  phoneMatchers: null, // phone_number_patterns, compiled
   uploadedHeaders: [],
   uploadedRows: [],
   fileName: "",
@@ -87,20 +90,25 @@ function optionsHtml(headers, selected) {
 
 async function loadResources() {
   try {
-    const [mappings, ruleSets, timezoneRows] = await Promise.all([
+    const [mappings, ruleSets, timezoneRows, phoneHeaderRules, phonePatternRules] = await Promise.all([
       fetchFieldMappings(),
       fetchTaxonomyRules(),
-      fetchTimezoneLookup()
+      fetchTimezoneLookup(),
+      fetchPhoneHeaderRules(),
+      fetchPhonePatternRules()
     ]);
     state.mappings = mappings;
     state.ruleSets = ruleSets;
     state.lookupMaps = buildLookupMaps(timezoneRows);
+    state.phoneHeaderNames = phoneHeaderRules.map((r) => r.header_name);
+    state.phoneMatchers = buildPhoneMatchers(phonePatternRules);
     state.resourcesLoaded = true;
   } catch (err) {
     state.resourcesError = err;
     errorBanner(
       `Couldn't load the data these tools depend on: ${err.message}. Confirm js/config.js is ` +
-        `filled in and that supabase/schema.sql, supabase/timezone_schema.sql (+ seed) have been run.`
+        `filled in and that supabase/schema.sql, supabase/timezone_schema.sql (+ seed), and ` +
+        `supabase/phone_schema.sql have been run.`
     );
   }
   updateRunButtonState();
@@ -203,7 +211,7 @@ function renderStepConfig(stepId) {
       `;
 
     case "phone-format":
-      return `<p class="hint" style="margin: 0">Automatically finds "Mobile No." and "Direct No." columns by name. No options to set here.</p>`;
+      return `<p class="hint" style="margin: 0">Uses the headers and number patterns stored in Supabase (see <a href="admin-phones.html">Manage Phone Rules</a>). No options to set here.</p>`;
 
     case "location-fill":
       return `
@@ -441,7 +449,8 @@ el.runBtn.addEventListener("click", async () => {
     const resources = {
       reportSync: { mappings: state.mappings },
       jobTitle: { ruleSets: state.ruleSets },
-      locationFill: { lookupMaps: state.lookupMaps }
+      locationFill: { lookupMaps: state.lookupMaps },
+      phoneFormat: { headerNames: state.phoneHeaderNames, matchers: state.phoneMatchers }
     };
 
     const result = await runPipeline(state.uploadedHeaders, state.uploadedRows, state.selected, resources, currentStepOptions(), {
