@@ -8,7 +8,8 @@ const LINKS = [
   { href: "report-sync.html", label: "Report → Contact Sync" },
   { href: "highlight-latest.html", label: "Highlight Latest Rows" },
   { href: "location-fill.html", label: "Fill Missing Location Data" },
-  { href: "data-quality.html", label: "Data Quality Checks" }
+  { href: "data-quality.html", label: "Data Quality Checks" },
+  { href: "linkedin-verify.html", label: "LinkedIn Verification" }
 ];
 
 /**

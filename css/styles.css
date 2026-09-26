@@ -19,6 +19,8 @@
   --accent-quality-soft: #efe1f4;
   --accent-pipeline: #1f3a5f;
   --accent-pipeline-soft: #dde6f0;
+  --accent-linkedin: #0a5c8a;
+  --accent-linkedin-soft: #dcebf3;
   --highlight-latest: #fff59d;
   --highlight-filled: #d9ead3;
   --highlight-architecture: #fff2cc;
@@ -259,6 +261,10 @@ a {
   border-top: 3px solid var(--accent-pipeline);
 }
 
+.tool-card--linkedin {
+  border-top: 3px solid var(--accent-linkedin);
+}
+
 .tool-card-tag {
   display: inline-block;
   font-size: 11px;
@@ -311,6 +317,10 @@ a {
 
 .tool-card--pipeline .tool-card-cta {
   color: var(--accent-pipeline);
+}
+
+.tool-card--linkedin .tool-card-cta {
+  color: var(--accent-linkedin);
 }
 
 .tool-card code {
@@ -582,6 +592,46 @@ a {
 .pipeline-log-warning {
   color: var(--danger);
   margin-top: 2px;
+}
+
+/* LinkedIn Verification tool */
+
+.consent-box {
+  background: var(--accent-highlight-soft);
+  border: 1px solid var(--accent-highlight);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-bottom: 18px;
+}
+
+.consent-box p {
+  margin: 0 0 10px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.consent-box p:last-of-type {
+  margin-bottom: 0;
+}
+
+.consent-box .radio-option {
+  font-weight: 600;
+  margin-top: 12px;
+}
+
+.stat-row {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin: 4px 0 18px;
+}
+
+.stat-pill {
+  font-size: 13px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--paper-raised);
 }
 
 .btn-primary,
