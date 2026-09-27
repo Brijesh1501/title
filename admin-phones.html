@@ -32,8 +32,10 @@
           <section class="rule-section">
             <h2>Headers to scan</h2>
             <p class="hint">
-              Any uploaded CSV column whose header matches one of these (case-insensitive,
-              whitespace-trimmed) has its phone numbers reformatted.
+              Any uploaded CSV column whose header matches one of these (case- and
+              spacing-insensitive — "Phone No1" and "Phone No 1" are treated the same) has
+              its phone numbers reformatted. Column order doesn't matter, only the header
+              text; everything besides case and whitespace must still match exactly.
             </p>
             <table class="data-table rule-table">
               <thead>

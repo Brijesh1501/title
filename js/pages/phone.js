@@ -84,7 +84,11 @@ el.fileInput.addEventListener("change", async (e) => {
   if (!state.matchers) return;
   state.fileName = file.name;
   const rows = await parseCsvFile(file);
-  const { rows: nextRows, changedCount, matchedHeaders } = normalizePhoneRowsWithRules(rows, state.headerNames, state.matchers);
+  const { rows: nextRows, changedCount, matchedHeaders, unmatchedHeaders } = normalizePhoneRowsWithRules(
+    rows,
+    state.headerNames,
+    state.matchers
+  );
   state.uploadedRows = nextRows;
   state.matchedHeaders = matchedHeaders;
 
@@ -96,6 +100,18 @@ el.fileInput.addEventListener("change", async (e) => {
     matchedHeaders.length > 0
       ? `Formatted ${changedCount} cell(s) across column(s): ${matchedHeaders.join(", ")}.`
       : `None of the configured header(s) (${state.headerNames.join(", ") || "none configured"}) were found in ${state.fileName}.`;
+
+  if (unmatchedHeaders.length) {
+    showBanner(
+      `<div class="banner">${unmatchedHeaders.length} configured header rule(s) weren't found as a column in ` +
+        `this file: ${unmatchedHeaders.map(escapeHtml).join(", ")}. That's expected if this file just doesn't ` +
+        `include those columns — but if one of them should be here, check for a typo in ` +
+        `<a href="admin-phones.html">Manage Phone Rules</a> or in the file's own column header (matching ` +
+        `ignores case and spacing, but the rest of the text must match exactly).</div>`
+    );
+  } else {
+    showBanner("");
+  }
 
   renderUploadedTable();
 });

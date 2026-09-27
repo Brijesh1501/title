@@ -169,16 +169,41 @@ export function normalizePhoneValueWithRules(value, matchers) {
   return result;
 }
 
+// Header matching normalizes away ALL whitespace (not just leading/trailing), not only
+// case. This was the actual root cause of a real-world bug: an admin-configured header rule
+// of "Phone No1 (ZoomInfo)" silently never matched an uploaded column literally named
+// "Phone No 1 (ZoomInfo)" (note the extra space before the digit) because the old comparison
+// only trimmed the ends of each string, so a difference in *internal* spacing — an easy typo
+// when a header is copied from one place (e.g. a field-mapping's source column) and pasted
+// into another (the destination header) — was enough to make a configured rule invisible,
+// with no error and no indication anything was wrong. Column order was never the issue here
+// (matching has always been by header name, not position); it was whitespace within the name.
+function normalizeHeaderKey(header) {
+  return String(header ?? "")
+    .replace(/\s+/g, "")
+    .toLowerCase();
+}
+
 /**
  * Generalized version of normalizePhoneRows: which headers to scan and which patterns to
  * apply both come from the admin-configured rules instead of the hardcoded defaults.
+ * Matching a configured header rule against the uploaded file's actual headers is
+ * case-insensitive and whitespace-insensitive (see normalizeHeaderKey above), and entirely
+ * independent of column order/position — a rule matches by header name alone, wherever that
+ * column happens to sit in the file.
  */
 export function normalizePhoneRowsWithRules(rows, headerNames, matchers) {
-  if (!rows.length) return { rows, changedCount: 0, matchedHeaders: [] };
+  if (!rows.length) return { rows, changedCount: 0, matchedHeaders: [], unmatchedHeaders: [] };
 
-  const wanted = new Set(headerNames.map((h) => h.trim().toLowerCase()));
+  const wantedKeys = new Set(headerNames.map(normalizeHeaderKey));
   const actualHeaders = Object.keys(rows[0]);
-  const matchedHeaders = actualHeaders.filter((h) => wanted.has(h.trim().toLowerCase()));
+  const matchedHeaders = actualHeaders.filter((h) => wantedKeys.has(normalizeHeaderKey(h)));
+
+  // Configured header rules that found no matching column in *this* file — surfaced to the
+  // person running the tool so a genuine mismatch (a real typo, not just spacing) is visible
+  // immediately instead of silently formatting nothing for that column.
+  const matchedKeys = new Set(matchedHeaders.map(normalizeHeaderKey));
+  const unmatchedHeaders = headerNames.filter((h) => !matchedKeys.has(normalizeHeaderKey(h)));
 
   let changedCount = 0;
 
@@ -193,5 +218,5 @@ export function normalizePhoneRowsWithRules(rows, headerNames, matchers) {
     return next;
   });
 
-  return { rows: nextRows, changedCount, matchedHeaders };
+  return { rows: nextRows, changedCount, matchedHeaders, unmatchedHeaders };
 }

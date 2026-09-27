@@ -142,16 +142,23 @@ function runPhoneFormatStep(state, phoneFormat) {
   // Number Formatter page. Falls back to the original hardcoded US pattern only if the
   // caller didn't supply them, so this stays a safe drop-in for any other caller of
   // runPipeline() that hasn't fetched phone rules.
-  const { rows, changedCount, matchedHeaders } =
-    phoneFormat && phoneFormat.matchers && phoneFormat.matchers.length
-      ? normalizePhoneRowsWithRules(state.rows, phoneFormat.headerNames || [], phoneFormat.matchers)
-      : normalizePhoneRows(state.rows);
+  const usingAdminRules = Boolean(phoneFormat && phoneFormat.matchers && phoneFormat.matchers.length);
+  const { rows, changedCount, matchedHeaders, unmatchedHeaders } = usingAdminRules
+    ? normalizePhoneRowsWithRules(state.rows, phoneFormat.headerNames || [], phoneFormat.matchers)
+    : { ...normalizePhoneRows(state.rows), unmatchedHeaders: [] };
 
   const summary = matchedHeaders.length
     ? `Reformatted ${changedCount.toLocaleString()} phone number(s) in: ${matchedHeaders.join(", ")}.`
     : `No configured phone header column found — nothing to format.`;
 
-  return { headers: state.headers, rows, rowFlags: state.rowFlags, cellFlags: state.cellFlags, summary, warnings: [] };
+  const warnings = [];
+  if (usingAdminRules && unmatchedHeaders.length) {
+    warnings.push(
+      `${unmatchedHeaders.length} configured header rule(s) weren't in this file: ${unmatchedHeaders.join(", ")} — expected if this file just doesn't include those columns, worth checking for a typo otherwise.`
+    );
+  }
+
+  return { headers: state.headers, rows, rowFlags: state.rowFlags, cellFlags: state.cellFlags, summary, warnings };
 }
 
 function runLocationFillStep(state, { lookupMaps, matchByCity = true }) {
