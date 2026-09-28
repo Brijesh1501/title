@@ -9,6 +9,17 @@
 const PHONE_REGEX =
   /(^|[^\d])((?:\+?1[\s.-]*)?(?:\(\s*\d{3}\s*\)|\d{3})[\s.-]*\d{3}[\s.-]*\d{4})(?=$|[^\d])/g;
 
+// True when the candidate number is preceded by an international "+<country code>" prefix
+// that the pattern did NOT consume itself (so it belongs to a different country). Without
+// this, "+44 650-714-3286" was matched by the US pattern on its "650-714-3286" tail and
+// came out as "+44 +1 650-714-3286".
+const FOREIGN_PREFIX_BEFORE = /\+\s*\d{1,4}[\s.-]*$/;
+
+function hasForeignPrefix(fullString, phoneStart, phone) {
+  if (/^\s*\+/.test(phone)) return false; // the pattern consumed its own "+<cc>"
+  return FOREIGN_PREFIX_BEFORE.test(fullString.slice(0, phoneStart));
+}
+
 export function formatUSNumber(digits) {
   return "+1 " + digits.substring(0, 3) + "-" + digits.substring(3, 6) + "-" + digits.substring(6, 10);
 }
@@ -17,7 +28,10 @@ export function normalizeUSPhone(value) {
   if (!value) return value;
   const original = String(value);
 
-  return original.replace(PHONE_REGEX, (match, before, phone) => {
+  return original.replace(PHONE_REGEX, (match, before, phone, offset) => {
+    // Leave numbers that carry a non-US international prefix (e.g. "+44 650-714-3286") alone.
+    if (hasForeignPrefix(original, offset + before.length, phone)) return match;
+
     const digits = phone.replace(/\D/g, "");
     let nationalNumber;
 
@@ -151,7 +165,10 @@ export function normalizePhoneValueWithRules(value, matchers) {
 
   let result = String(value);
   for (const matcher of matchers) {
-    result = result.replace(matcher.regex, (match, before, phone) => {
+    result = result.replace(matcher.regex, (match, before, phone, offset, whole) => {
+      // Skip numbers that already carry a different country's "+<cc>" prefix.
+      if (hasForeignPrefix(whole, offset + before.length, phone)) return match;
+
       const digits = phone.replace(/\D/g, "");
       const { nationalLength, ccDigits } = matcher;
 
