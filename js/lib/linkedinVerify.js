@@ -228,3 +228,69 @@ export async function runLinkedInVerification(headers, rows, { linkedinHeader, a
     resultCount: results.length
   };
 }
+
+// ---------------------------------------------------------------------------
+// Manual browser check — no API, no cost
+// ---------------------------------------------------------------------------
+// A browser page can't read linkedin.com on the user's behalf (CORS + login wall), so the
+// manual mode opens each profile in a new tab and lets the person record what they see.
+// Decisions are keyed by row index and folded into the same three output columns.
+
+export const MANUAL_DECISIONS = ["Matched", "Not Matched", "Can't Verify"];
+
+/** One queue entry per row that has a usable linkedin.com profile URL. */
+export function buildManualQueue(rows, linkedinHeader, accountHeader) {
+  const queue = [];
+  rows.forEach((row, rowIndex) => {
+    const normalized = normalizeLinkedInUrl(row[linkedinHeader]);
+    if (!normalized) return;
+    queue.push({
+      rowIndex,
+      url: normalized,
+      account: String(row[accountHeader] ?? "").trim()
+    });
+  });
+  return queue;
+}
+
+/**
+ * @param decisions  Map<rowIndex, { decision, company, title }>
+ * Rows with no valid URL -> "Missing Data"; valid URL but not yet reviewed -> "Not Checked";
+ * "Can't Verify" is kept as its own status so it isn't confused with a real mismatch.
+ */
+export function applyManualResults(headers, rows, linkedinHeader, decisions) {
+  const statuses = [];
+  const companies = [];
+  const titles = [];
+  const stats = { matched: 0, notMatched: 0, missing: 0 };
+
+  rows.forEach((row, i) => {
+    if (!normalizeLinkedInUrl(row[linkedinHeader])) {
+      statuses.push("Missing Data");
+      companies.push("");
+      titles.push("");
+      stats.missing += 1;
+      return;
+    }
+    const d = decisions.get(i);
+    if (!d) {
+      statuses.push("Not Checked");
+      companies.push("");
+      titles.push("");
+      stats.missing += 1;
+      return;
+    }
+    statuses.push(d.decision);
+    companies.push(d.company || "");
+    titles.push(d.decision === "Matched" ? d.title || "" : "");
+    if (d.decision === "Matched") stats.matched += 1;
+    else if (d.decision === "Not Matched") stats.notMatched += 1;
+    else stats.missing += 1;
+  });
+
+  let out = { headers, rows };
+  out = withStatusColumn(out.headers, out.rows, LINKEDIN_STATUS_HEADER, statuses);
+  out = withStatusColumn(out.headers, out.rows, LINKEDIN_COMPANY_HEADER, companies);
+  out = withStatusColumn(out.headers, out.rows, LINKEDIN_TITLE_HEADER, titles);
+  return { headers: out.headers, rows: out.rows, stats };
+}

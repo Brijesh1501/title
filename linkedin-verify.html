@@ -44,6 +44,20 @@
               <p class="hint" id="upload-hint" style="display: none"></p>
 
               <div id="config-panel" style="display: none">
+                <div class="field-group">
+                  <span class="field-group-label">Verification method</span>
+                  <div class="radio-group">
+                    <label class="radio-option">
+                      <input type="radio" name="verify-mode" value="auto" checked />
+                      Automated (Bright Data, paid)
+                    </label>
+                    <label class="radio-option">
+                      <input type="radio" name="verify-mode" value="manual" />
+                      Manual — check in my browser (free)
+                    </label>
+                  </div>
+                </div>
+
                 <div class="config-grid">
                   <div class="field-group">
                     <label class="field-group-label" for="linkedin-select">Contact LinkedIn column</label>
@@ -57,6 +71,7 @@
 
                 <div class="stat-row" id="stat-row"></div>
 
+                <div id="auto-panel">
                 <div class="consent-box">
                   <p>
                     <strong>This calls a paid, external API.</strong> Every unique LinkedIn URL
@@ -75,6 +90,16 @@
                     I understand this will submit real LinkedIn URLs to Bright Data and use
                     billed credits.
                   </label>
+                </div>
+                </div>
+
+                <div id="manual-panel" class="mode-panel" style="display: none">
+                  <p class="hint">
+                    Opens each LinkedIn profile in a new browser tab so you can check it yourself
+                    while logged in to LinkedIn. Nothing is sent to any API. LinkedIn pages can't
+                    be read automatically from a web page, so you record what you see.
+                  </p>
+                  <div class="manual-card" id="manual-card"></div>
                 </div>
               </div>
 

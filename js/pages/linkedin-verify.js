@@ -3,6 +3,8 @@ import { statusColorKey } from "../lib/dataQuality.js";
 import {
   collectUniqueUrls,
   runLinkedInVerification,
+  buildManualQueue,
+  applyManualResults,
   LINKEDIN_STATUS_HEADER
 } from "../lib/linkedinVerify.js";
 import { downloadCsv, downloadCellHighlightedXlsx, parseCsvFile } from "../lib/csv.js";
@@ -16,7 +18,11 @@ const state = {
   rows: [],
   fileName: "",
   resultHeaders: null,
-  resultRows: null
+  resultRows: null,
+  mode: "auto", // "auto" | "manual"
+  queue: [],
+  decisions: new Map(), // rowIndex -> { decision, company, title }
+  queueIndex: 0
 };
 
 const el = {
@@ -29,6 +35,9 @@ const el = {
   accountSelect: document.getElementById("account-select"),
   statRow: document.getElementById("stat-row"),
   consentCheckbox: document.getElementById("consent-checkbox"),
+  autoPanel: document.getElementById("auto-panel"),
+  manualPanel: document.getElementById("manual-panel"),
+  manualCard: document.getElementById("manual-card"),
   runBtn: document.getElementById("run-btn"),
   progressWrap: document.getElementById("progress-wrap"),
   progressFill: document.getElementById("progress-fill"),
@@ -80,6 +89,15 @@ function hideProgress() {
 }
 
 function updateRunButtonState() {
+  if (state.mode === "manual") {
+    el.runBtn.disabled = state.queue.length === 0;
+    el.runBtn.textContent = !state.rows.length
+      ? "Upload a CSV to continue"
+      : state.queue.length
+        ? `Finish & build results (${state.decisions.size}/${state.queue.length} reviewed)`
+        : "No valid LinkedIn URLs found";
+    return;
+  }
   const ready = state.rows.length > 0 && el.consentCheckbox.checked;
   el.runBtn.disabled = !ready;
   if (!state.rows.length) el.runBtn.textContent = "Upload a CSV to continue";
@@ -98,7 +116,88 @@ function updateStatRow() {
   `;
 }
 
-el.linkedinSelect.addEventListener("change", updateStatRow);
+function rebuildQueue() {
+  state.queue = state.rows.length ? buildManualQueue(state.rows, el.linkedinSelect.value, el.accountSelect.value) : [];
+  state.decisions = new Map();
+  state.queueIndex = 0;
+  renderManualCard();
+  updateRunButtonState();
+}
+
+function setMode(mode) {
+  state.mode = mode;
+  el.autoPanel.style.display = mode === "auto" ? "" : "none";
+  el.manualPanel.style.display = mode === "manual" ? "" : "none";
+  if (mode === "manual") rebuildQueue();
+  else updateRunButtonState();
+}
+
+document.querySelectorAll('input[name="verify-mode"]').forEach((radio) => {
+  radio.addEventListener("change", (e) => {
+    if (e.target.checked) setMode(e.target.value);
+  });
+});
+
+function renderManualCard() {
+  if (!state.queue.length) {
+    el.manualCard.innerHTML = `<p class="hint">No valid linkedin.com profile URLs in the selected column.</p>`;
+    return;
+  }
+  const i = state.queueIndex;
+  const item = state.queue[i];
+  const saved = state.decisions.get(item.rowIndex);
+  el.manualCard.innerHTML = `
+    <div class="manual-card-meta">Contact ${i + 1} of ${state.queue.length} · row ${item.rowIndex + 2} of the CSV</div>
+    <div class="manual-card-account">Expected company: ${escapeHtml(item.account || "(none on file)")}</div>
+    <div class="manual-card-url">${escapeHtml(item.url)}</div>
+    <div class="manual-actions">
+      <a class="btn-secondary btn-small" href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">Open profile in new tab ↗</a>
+    </div>
+    <div class="manual-fields">
+      <input type="text" id="manual-company" placeholder="Current company shown (optional)" value="${escapeHtml(saved?.company || "")}" />
+      <input type="text" id="manual-title" placeholder="Current title shown (optional)" value="${escapeHtml(saved?.title || "")}" />
+    </div>
+    <div class="manual-actions">
+      <button class="btn-primary btn-small" data-decision="Matched">Matched</button>
+      <button class="btn-secondary btn-small" data-decision="Not Matched">Not matched</button>
+      <button class="btn-ghost btn-small" data-decision="Can't Verify">Can't verify</button>
+    </div>
+    <div class="manual-actions">
+      <button class="btn-ghost btn-small" id="manual-prev" ${i === 0 ? "disabled" : ""}>← Previous</button>
+      <button class="btn-ghost btn-small" id="manual-next" ${i === state.queue.length - 1 ? "disabled" : ""}>Skip →</button>
+      <span class="manual-decision">${saved ? `Recorded: ${escapeHtml(saved.decision)}` : "Not reviewed yet"}</span>
+    </div>
+  `;
+
+  el.manualCard.querySelectorAll("[data-decision]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      state.decisions.set(item.rowIndex, {
+        decision: btn.dataset.decision,
+        company: document.getElementById("manual-company").value.trim(),
+        title: document.getElementById("manual-title").value.trim()
+      });
+      if (state.queueIndex < state.queue.length - 1) state.queueIndex += 1;
+      renderManualCard();
+      updateRunButtonState();
+    });
+  });
+  document.getElementById("manual-prev").addEventListener("click", () => {
+    state.queueIndex = Math.max(0, state.queueIndex - 1);
+    renderManualCard();
+  });
+  document.getElementById("manual-next").addEventListener("click", () => {
+    state.queueIndex = Math.min(state.queue.length - 1, state.queueIndex + 1);
+    renderManualCard();
+  });
+}
+
+el.linkedinSelect.addEventListener("change", () => {
+  updateStatRow();
+  if (state.mode === "manual") rebuildQueue();
+});
+el.accountSelect.addEventListener("change", () => {
+  if (state.mode === "manual") rebuildQueue();
+});
 el.consentCheckbox.addEventListener("change", updateRunButtonState);
 
 el.fileInput.addEventListener("change", async (e) => {
@@ -127,7 +226,8 @@ el.fileInput.addEventListener("change", async (e) => {
 
   el.configPanel.style.display = "";
   updateStatRow();
-  updateRunButtonState();
+  if (state.mode === "manual") rebuildQueue();
+  else updateRunButtonState();
 });
 
 el.clearBtn.addEventListener("click", () => {
@@ -136,6 +236,9 @@ el.clearBtn.addEventListener("click", () => {
   state.fileName = "";
   state.resultHeaders = null;
   state.resultRows = null;
+  state.queue = [];
+  state.decisions = new Map();
+  state.queueIndex = 0;
   el.fileInput.value = "";
   el.clearBtn.style.display = "none";
   el.uploadHint.style.display = "none";
@@ -147,6 +250,17 @@ el.clearBtn.addEventListener("click", () => {
 });
 
 el.runBtn.addEventListener("click", async () => {
+  if (state.mode === "manual") {
+    const result = applyManualResults(state.headers, state.rows, el.linkedinSelect.value, state.decisions);
+    state.resultHeaders = result.headers;
+    state.resultRows = result.rows;
+    showBanner(
+      `<div class="banner">Manual check: ${result.stats.matched.toLocaleString()} matched, ` +
+        `${result.stats.notMatched.toLocaleString()} not matched, ${result.stats.missing.toLocaleString()} missing / not checked / can't verify.</div>`
+    );
+    renderResults();
+    return;
+  }
   el.runBtn.disabled = true;
   const originalLabel = el.runBtn.textContent;
   el.runBtn.textContent = "Running…";

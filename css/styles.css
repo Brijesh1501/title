@@ -918,3 +918,55 @@ td.status-neutral {
     align-items: flex-start;
   }
 }
+/* LinkedIn manual browser check */
+
+.manual-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper-raised);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.manual-card-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.manual-card-account {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.manual-card-url {
+  font-size: 12px;
+  word-break: break-all;
+}
+
+.manual-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.manual-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.manual-fields input {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+  font-size: 13px;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.manual-decision {
+  font-size: 12px;
+  font-weight: 600;
+}
