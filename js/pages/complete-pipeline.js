@@ -304,7 +304,7 @@ function updateRunButtonState() {
   el.runBtn.disabled = !ready;
 
   if (!state.resourcesLoaded) el.runBtn.textContent = state.resourcesError ? "Couldn't load required data" : "Loading tool data…";
-  else if (!state.uploadedRows.length) el.runBtn.textContent = "Upload a CSV to continue";
+  else if (!state.uploadedRows.length) el.runBtn.textContent = "Upload a CSV or Excel file to continue";
   else if (!state.selected.size) el.runBtn.textContent = "Select at least one pass to run";
   else el.runBtn.textContent = "Run pipeline";
 }
@@ -318,7 +318,7 @@ el.fileInput.addEventListener("change", async (e) => {
   if (!file) return;
   state.fileName = file.name;
 
-  showProgress("Reading CSV…");
+  showProgress("Reading file…");
   el.resultsBlock.style.display = "none";
   el.logSection.style.display = "none";
   showBanner("");
@@ -525,7 +525,7 @@ function renderResults() {
 }
 
 function exportBaseName() {
-  const stem = state.fileName ? state.fileName.replace(/\.csv$/i, "") : "contacts";
+  const stem = state.fileName ? state.fileName.replace(/\.(csv|tsv|xlsx|xlsm|xlsb|xls|ods)$/i, "") : "contacts";
   return `${stem}-pipeline`;
 }
 

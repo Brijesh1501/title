@@ -111,7 +111,7 @@ el.fileInput.addEventListener("change", async (e) => {
   if (!file) return;
   state.fileName = file.name;
 
-  showProgress("Reading CSV…");
+  showProgress("Reading file…");
   el.syncBtn.disabled = true;
   el.resultsBlock.style.display = "none";
 
@@ -216,7 +216,7 @@ function renderResults(headers, rows) {
 }
 
 function exportBaseName() {
-  const stem = state.fileName ? state.fileName.replace(/\.csv$/i, "") : "report";
+  const stem = state.fileName ? state.fileName.replace(/\.(csv|tsv|xlsx|xlsm|xlsb|xls|ods)$/i, "") : "report";
   return `contact-sheet-${stem}`;
 }
 

@@ -6,7 +6,7 @@ import {
   normalizePhoneValueWithRules,
   normalizePhoneRowsWithRules
 } from "../lib/phoneUtils.js";
-import { downloadCsv, parseCsvFile } from "../lib/csv.js";
+import { downloadCsv, parseCsvFile, fileStem } from "../lib/csv.js";
 
 mountSidebar("phone-formatter.html");
 
@@ -163,7 +163,7 @@ function renderTextTable() {
 
 el.exportBtn.addEventListener("click", () => {
   if (state.uploadedRows) {
-    downloadCsv(state.uploadedRows, state.fileName ? `formatted-${state.fileName}` : "formatted-phones.csv");
+    downloadCsv(state.uploadedRows, state.fileName ? `formatted-${fileStem(state.fileName)}.csv` : "formatted-phones.csv");
   } else {
     downloadCsv(
       state.textResult.map((line) => ({ value: line })),

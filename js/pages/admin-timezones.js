@@ -1,6 +1,7 @@
 import { mountSidebar } from "../components/sidebar.js";
 import { requireSession } from "../components/auth-guard.js";
 import { supabase } from "../supabaseClient.js";
+import { parseCsvFile } from "../lib/csv.js";
 
 mountSidebar("admin-timezones.html");
 
@@ -229,59 +230,59 @@ function mapImportRow(rawRow, headerIndex) {
   return record;
 }
 
-el.importInput.addEventListener("change", (e) => {
+el.importInput.addEventListener("change", async (e) => {
   const file = e.target.files?.[0];
   if (!file) return;
 
-  window.Papa.parse(file, {
-    header: true,
-    skipEmptyLines: true,
-    complete: async (results) => {
-      e.target.value = "";
+  let parsedRows;
+  try {
+    parsedRows = await parseCsvFile(file);
+  } catch (err) {
+    showBanner(`Couldn't read that file: ${err.message}`);
+    return;
+  } finally {
+    e.target.value = "";
+  }
 
-      const rawHeaders = results.meta.fields || [];
-      const headerIndex = {};
-      rawHeaders.forEach((h) => {
-        headerIndex[h.trim().toLowerCase()] = h;
-      });
-
-      const records = results.data
-        .map((row) => mapImportRow(row, headerIndex))
-        .filter((r) => r.city || r.state || r.country);
-
-      if (!records.length) {
-        showBanner("No usable rows found in that file — expected a City, State or Country column.");
-        return;
-      }
-
-      showBanner(`Importing ${records.length.toLocaleString()} row(s)…`, false);
-
-      // Batched, and ignoreDuplicates so an existing City/State/Country combo is left alone
-      // rather than throwing the whole import out on the first collision.
-      const BATCH_SIZE = 500;
-      let inserted = 0;
-      for (let i = 0; i < records.length; i += BATCH_SIZE) {
-        const batch = records.slice(i, i + BATCH_SIZE);
-        const { data, error } = await supabase
-          .from("timezone_lookup")
-          .upsert(batch, { onConflict: "city,state,country", ignoreDuplicates: true })
-          .select("id");
-
-        if (error) {
-          showBanner(`Import stopped partway through: ${friendlyError(error)}`);
-          return;
-        }
-        inserted += data?.length ?? 0;
-      }
-
-      showBanner(
-        `Imported ${inserted.toLocaleString()} new row(s). ${(records.length - inserted).toLocaleString()} were already in the table and left unchanged.`,
-        false
-      );
-      loadRows();
-    },
-    error: (err) => showBanner(`Couldn't read that file: ${err.message}`)
+  const headerIndex = {};
+  Object.keys(parsedRows[0] || {}).forEach((h) => {
+    headerIndex[h.trim().toLowerCase()] = h;
   });
+
+  const records = parsedRows
+    .map((row) => mapImportRow(row, headerIndex))
+    .filter((r) => r.city || r.state || r.country);
+
+  if (!records.length) {
+    showBanner("No usable rows found in that file — expected a City, State or Country column.");
+    return;
+  }
+
+  showBanner(`Importing ${records.length.toLocaleString()} row(s)…`, false);
+
+  // Batched, and ignoreDuplicates so an existing City/State/Country combo is left alone
+  // rather than throwing the whole import out on the first collision.
+  const BATCH_SIZE = 500;
+  let inserted = 0;
+  for (let i = 0; i < records.length; i += BATCH_SIZE) {
+    const batch = records.slice(i, i + BATCH_SIZE);
+    const { data, error } = await supabase
+      .from("timezone_lookup")
+      .upsert(batch, { onConflict: "city,state,country", ignoreDuplicates: true })
+      .select("id");
+
+    if (error) {
+      showBanner(`Import stopped partway through: ${friendlyError(error)}`);
+      return;
+    }
+    inserted += data?.length ?? 0;
+  }
+
+  showBanner(
+    `Imported ${inserted.toLocaleString()} new row(s). ${(records.length - inserted).toLocaleString()} were already in the table and left unchanged.`,
+    false
+  );
+  loadRows();
 });
 
 // ---------- event delegation ----------

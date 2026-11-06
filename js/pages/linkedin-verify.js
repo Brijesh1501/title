@@ -92,7 +92,7 @@ function updateRunButtonState() {
   if (state.mode === "manual") {
     el.runBtn.disabled = state.queue.length === 0;
     el.runBtn.textContent = !state.rows.length
-      ? "Upload a CSV to continue"
+      ? "Upload a CSV or Excel file to continue"
       : state.queue.length
         ? `Finish & build results (${state.decisions.size}/${state.queue.length} reviewed)`
         : "No valid LinkedIn URLs found";
@@ -100,7 +100,7 @@ function updateRunButtonState() {
   }
   const ready = state.rows.length > 0 && el.consentCheckbox.checked;
   el.runBtn.disabled = !ready;
-  if (!state.rows.length) el.runBtn.textContent = "Upload a CSV to continue";
+  if (!state.rows.length) el.runBtn.textContent = "Upload a CSV or Excel file to continue";
   else if (!el.consentCheckbox.checked) el.runBtn.textContent = "Confirm the notice above to continue";
   else el.runBtn.textContent = "Run LinkedIn verification";
 }
@@ -332,7 +332,7 @@ function renderResults() {
 }
 
 function exportBaseName() {
-  const stem = state.fileName ? state.fileName.replace(/\.csv$/i, "") : "contacts";
+  const stem = state.fileName ? state.fileName.replace(/\.(csv|tsv|xlsx|xlsm|xlsb|xls|ods)$/i, "") : "contacts";
   return `${stem}-linkedin-verified`;
 }
 

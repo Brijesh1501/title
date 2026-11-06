@@ -87,12 +87,12 @@ el.fileInput.addEventListener("change", async (e) => {
   showBanner("");
   el.resultsBlock.style.display = "none";
   el.runBtn.disabled = true;
-  el.runBtn.textContent = "Reading CSV…";
+  el.runBtn.textContent = "Reading file…";
 
   const rows = await parseCsvFile(file);
   if (!rows.length) {
     errorBanner("That file has no data rows.");
-    el.runBtn.textContent = "Upload a CSV to continue";
+    el.runBtn.textContent = "Upload a CSV or Excel file to continue";
     return;
   }
 
@@ -125,7 +125,7 @@ el.clearBtn.addEventListener("click", () => {
   el.configPanel.style.display = "none";
   el.resultsBlock.style.display = "none";
   el.runBtn.disabled = true;
-  el.runBtn.textContent = "Upload a CSV to continue";
+  el.runBtn.textContent = "Upload a CSV or Excel file to continue";
   showBanner("");
 });
 
@@ -209,7 +209,7 @@ function getExportData() {
     [LATEST_COLUMN]: state.latestRowIndexes.has(i) ? "Yes" : ""
   }));
   const highlights = state.rows.map((_, i) => (state.latestRowIndexes.has(i) ? "latest" : null));
-  const stem = state.fileName ? state.fileName.replace(/\.csv$/i, "") : "report";
+  const stem = state.fileName ? state.fileName.replace(/\.(csv|tsv|xlsx|xlsm|xlsb|xls|ods)$/i, "") : "report";
   return { headers, rows, highlights, baseName: `highlighted-${stem}` };
 }
 

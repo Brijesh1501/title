@@ -100,7 +100,7 @@ el.fileInput.addEventListener("change", async (e) => {
   if (!file) return;
   state.fileName = file.name;
 
-  showProgress("Reading CSV…");
+  showProgress("Reading file…");
   el.runBtn.disabled = true;
   el.resultsBlock.style.display = "none";
 
@@ -146,7 +146,7 @@ el.clearBtn.addEventListener("click", () => {
   el.configPanel.style.display = "none";
   el.resultsBlock.style.display = "none";
   el.runBtn.disabled = true;
-  el.runBtn.textContent = "Upload a CSV to continue";
+  el.runBtn.textContent = "Upload a CSV or Excel file to continue";
   showBanner("");
 });
 
@@ -213,7 +213,7 @@ function renderResults() {
 }
 
 function exportBaseName() {
-  const stem = state.fileName ? state.fileName.replace(/\.csv$/i, "") : "contacts";
+  const stem = state.fileName ? state.fileName.replace(/\.(csv|tsv|xlsx|xlsm|xlsb|xls|ods)$/i, "") : "contacts";
   return `${stem}-quality-checked`;
 }
 

@@ -15,7 +15,77 @@ export function downloadCsv(rows, filename) {
   URL.revokeObjectURL(url);
 }
 
+const SPREADSHEET_EXT = /\.(xlsx|xlsm|xlsb|xls|ods)$/i;
+const SHEETJS_URL = "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js";
+
+/** True for Excel / OpenDocument spreadsheet files (anything that isn't plain CSV/TSV text). */
+export function isSpreadsheetFile(file) {
+  return SPREADSHEET_EXT.test(file?.name || "");
+}
+
+/** Strips a CSV or Excel extension off a filename — used when building export names. */
+export function fileStem(name, fallback = "contacts") {
+  return name ? name.replace(/\.(csv|tsv|xlsx|xlsm|xlsb|xls|ods)$/i, "") : fallback;
+}
+
+// SheetJS is only fetched the first time someone actually uploads an Excel file, so
+// CSV-only users never pay for the ~900 KB download and no HTML page needs a new <script>.
+let sheetJsPromise = null;
+function loadSheetJs() {
+  if (window.XLSX) return Promise.resolve(window.XLSX);
+  if (!sheetJsPromise) {
+    sheetJsPromise = new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = SHEETJS_URL;
+      script.onload = () => resolve(window.XLSX);
+      script.onerror = () => {
+        sheetJsPromise = null; // allow a retry
+        reject(new Error("Couldn't load the Excel reader. Check your connection and try again."));
+      };
+      document.head.appendChild(script);
+    });
+  }
+  return sheetJsPromise;
+}
+
+/**
+ * Reads the first non-empty sheet of an Excel/ODS file into the same shape parseCsvFile
+ * returns: an array of plain objects keyed by the header row. Cell values come back as the
+ * text Excel displays (raw: false), so phone numbers, ZIP codes and dates look exactly as they
+ * do in the sheet instead of turning into 9.19E+11 or serial numbers.
+ */
+async function parseExcelFile(file, onProgress) {
+  const XLSX = await loadSheetJs();
+  const buffer = await file.arrayBuffer();
+  const workbook = XLSX.read(buffer, { type: "array" });
+
+  let rows = [];
+  for (const name of workbook.SheetNames) {
+    const sheetRows = XLSX.utils.sheet_to_json(workbook.Sheets[name], {
+      defval: "", // keep empty cells so every row has the same keys
+      raw: false, // use formatted text, matching what a CSV export would contain
+      blankrows: false
+    });
+    if (sheetRows.length) {
+      rows = sheetRows;
+      if (workbook.SheetNames.length > 1) {
+        console.info(`Excel import: using sheet "${name}" (first sheet with data).`);
+      }
+      break;
+    }
+  }
+
+  if (onProgress) onProgress({ rowsParsed: rows.length, percent: 100 });
+  return rows;
+}
+
+/**
+ * Parses an uploaded CSV *or* Excel file into an array of row objects keyed by header.
+ * Name kept as parseCsvFile so existing pages work unchanged; parseSpreadsheetFile is an alias.
+ */
 export function parseCsvFile(file, onProgress) {
+  if (isSpreadsheetFile(file)) return parseExcelFile(file, onProgress);
+
   return new Promise((resolve, reject) => {
     const rows = [];
 
@@ -39,6 +109,8 @@ export function parseCsvFile(file, onProgress) {
     });
   });
 }
+
+export const parseSpreadsheetFile = parseCsvFile;
 
 // ARGB fill colors, matching the row-highlight colors used in the on-page table
 // (css/styles.css --highlight-architecture / --highlight-others / --highlight-latest /

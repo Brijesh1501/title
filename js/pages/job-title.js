@@ -82,7 +82,7 @@ el.fileInput.addEventListener("change", async (e) => {
   if (!file) return;
   state.fileName = file.name;
 
-  showProgress("Reading CSV…");
+  showProgress("Reading file…");
   el.categorizeBtn.disabled = true;
   try {
     state.uploadedRows = await parseCsvFile(file, ({ rowsParsed, percent }) => {
@@ -192,7 +192,7 @@ function getExportData() {
       headers: Object.keys(state.uploadedRows[0]),
       rows: state.uploadedRows,
       highlights: state.results.map((r) => r.highlight),
-      baseName: state.fileName ? `categorized-${state.fileName.replace(/\.csv$/i, "")}` : "categorized-titles"
+      baseName: state.fileName ? `categorized-${state.fileName.replace(/\.(csv|tsv|xlsx|xlsm|xlsb|xls|ods)$/i, "")}` : "categorized-titles"
     };
   }
   const headers = ["Title", "Responsibility Area", "Title Level", "Department Function"];

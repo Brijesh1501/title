@@ -22,7 +22,7 @@
           <header class="page-header">
             <h1 class="page-title">Highlight Latest Rows</h1>
             <p class="page-lede">
-              Upload a CSV with a Website column and it groups every row by website, finds the
+              Upload a CSV or Excel file with a Website column and it groups every row by website, finds the
               most recent one in each group, and highlights it — the same logic as the
               <code>highlightLatestByCreatedDate()</code> and <code>highlightLatestCampaign()</code>
               spreadsheet macros, combined into one tool with the date source and date format
@@ -36,8 +36,8 @@
             <div class="tool-panel-input">
               <div class="field-row">
                 <label class="upload-button">
-                  Upload CSV
-                  <input type="file" id="file-input" accept=".csv" hidden />
+                  Upload CSV / Excel
+                  <input type="file" id="file-input" accept=".csv,.xlsx,.xlsm,.xls,.ods" hidden />
                 </label>
                 <button class="btn-ghost" id="clear-upload-btn" style="display: none">Clear file</button>
               </div>
@@ -105,7 +105,7 @@
                 </div>
               </div>
 
-              <button class="btn-primary" id="run-btn" disabled>Upload a CSV to continue</button>
+              <button class="btn-primary" id="run-btn" disabled>Upload a CSV or Excel file to continue</button>
             </div>
           </div>
 

@@ -23,6 +23,17 @@ Three tools, plus an admin panel:
      field mappings that drive the sync tool.
    No code changes or redeploys required for either one.
 
+## Importing Excel files
+
+Every upload button (all six tools plus the timezone import in the admin panel) accepts
+`.csv`, `.xlsx`, `.xlsm`, `.xls` and `.ods`. Excel parsing lives in `js/lib/csv.js`
+(`parseCsvFile` picks the right parser from the file extension). Notes:
+
+- The first sheet that contains data is used.
+- Cells are read as the text Excel displays, so phone numbers and ZIP codes keep their format.
+- SheetJS is loaded from the CDN only when an Excel file is first uploaded — no extra `<script>` tags.
+- Exports are unchanged (CSV, and highlighted `.xlsx` where already offered).
+
 ## 1. Create the Supabase project
 
 1. Create a new project at [supabase.com](https://supabase.com).

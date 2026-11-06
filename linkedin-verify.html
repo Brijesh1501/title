@@ -36,8 +36,8 @@
             <div class="tool-panel-input">
               <div class="field-row">
                 <label class="upload-button">
-                  Upload CSV
-                  <input type="file" id="file-input" accept=".csv" hidden />
+                  Upload CSV / Excel
+                  <input type="file" id="file-input" accept=".csv,.xlsx,.xlsm,.xls,.ods" hidden />
                 </label>
                 <button class="btn-ghost" id="clear-upload-btn" style="display: none">Clear file</button>
               </div>
@@ -103,7 +103,7 @@
                 </div>
               </div>
 
-              <button class="btn-primary" id="run-btn" disabled>Upload a CSV to continue</button>
+              <button class="btn-primary" id="run-btn" disabled>Upload a CSV or Excel file to continue</button>
 
               <div class="progress-wrap" id="progress-wrap" style="display: none">
                 <div class="progress-label">
